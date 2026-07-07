@@ -74,7 +74,7 @@ export default function AdminPanel() {
               borderRadius: 8, textTransform: 'capitalize', padding: '6px 18px',
               fontWeight: activeTab === tab ? 600 : 400
             }}>
-            {tab === 'overview' ? 'Overview' : 'Manage Users'}
+            {tab === 'overview' ? 'Overview' : tab === 'users' ? 'Manage Users' : 'Feedback'}
           </button>
         ))}
       </div>
