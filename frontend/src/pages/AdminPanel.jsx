@@ -64,7 +64,7 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="d-flex gap-2 mb-4">
-        {['overview','users'].map(tab => (
+        {['overview','users', 'feedback'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className="btn btn-sm"
             style={{
@@ -204,10 +204,126 @@ export default function AdminPanel() {
           </div>
         </div>
       )}
+    {activeTab === 'feedback' && (
+      <FeedbackTab />
+    )}
 
       {toast && (
         <div className="toast-container-custom">
           <div className="p-3 rounded-3" style={{ background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', color: 'var(--text-primary)', minWidth: 220 }}>
+            <i className="bi bi-check-circle-fill me-2 text-cyan"></i>{toast}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FeedbackTab() {
+  const [feedbacks, setFeedbacks] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState('')
+  const [updating, setUpdating] = useState(null)
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
+
+  useEffect(() => {
+    axios.get(`${API}/feedback`)
+      .then(res => setFeedbacks(res.data))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleUpdate = async (id, status, adminNote) => {
+    setUpdating(id)
+    try {
+      const res = await axios.patch(`${API}/feedback/${id}`, { status, adminNote })
+      setFeedbacks(f => f.map(x => x._id === id ? res.data : x))
+      showToast('Updated!')
+    } catch (err) { showToast('Error updating') }
+    finally { setUpdating(null) }
+  }
+
+  const STATUS_COLORS = {
+    Pending: { bg: 'rgba(245,158,11,0.12)', color: 'var(--amber-400)', border: 'rgba(245,158,11,0.3)' },
+    Reviewed: { bg: 'var(--cyan-glow)', color: 'var(--cyan-500)', border: 'rgba(0,198,215,0.3)' },
+    Resolved: { bg: 'rgba(16,185,129,0.12)', color: 'var(--green-400)', border: 'rgba(16,185,129,0.3)' },
+  }
+
+  if (loading) return <div className="text-center py-5"><div className="spinner-border spinner-cyan" /></div>
+
+  return (
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h6 style={{ fontWeight: 600, marginBottom: 0 }}>All Feedback ({feedbacks.length})</h6>
+        <div className="d-flex gap-2">
+          {['Pending','Reviewed','Resolved'].map(s => {
+            const c = STATUS_COLORS[s]
+            return (
+              <span key={s} className="badge rounded-pill" style={{ background: c.bg, color: c.color, border: `1px solid ${c.border}`, fontSize: '0.75rem', padding: '5px 10px' }}>
+                {feedbacks.filter(f => f.status === s).length} {s}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+      {feedbacks.length === 0 ? (
+        <div className="card-dark text-center py-5">
+          <i className="bi bi-inbox" style={{ fontSize: '2.5rem', color: 'var(--text-muted)' }}></i>
+          <p className="mt-2" style={{ color: 'var(--text-muted)' }}>No feedback submitted yet</p>
+        </div>
+      ) : feedbacks.map(fb => {
+        const s = STATUS_COLORS[fb.status] || STATUS_COLORS.Pending
+        return (
+          <div key={fb._id} className="card-dark p-3 mb-3">
+            <div className="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{fb.subject}</span>
+                <span className="ms-2 badge rounded-pill badge-cyan" style={{ fontSize: '0.7rem' }}>{fb.type}</span>
+              </div>
+              <span className="badge rounded-pill" style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}`, fontSize: '0.7rem' }}>
+                {fb.status}
+              </span>
+            </div>
+            <div className="d-flex align-items-center gap-2 mb-2">
+              <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--cyan-500)', flexShrink: 0 }}>
+                {fb.user?.name?.[0]?.toUpperCase()}
+              </div>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{fb.user?.name} · {fb.user?.email}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+                {new Date(fb.createdAt).toLocaleDateString('en-IN')}
+              </span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>{fb.message}</p>
+            <div className="row g-2">
+              <div className="col-md-4">
+                <select className="form-select form-select-dark form-select-sm"
+                  value={fb.status}
+                  onChange={e => handleUpdate(fb._id, e.target.value, fb.adminNote)}>
+                  <option value="Pending">Pending</option>
+                  <option value="Reviewed">Reviewed</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+              </div>
+              <div className="col-md-6">
+                <input type="text" className="form-control form-control-dark form-control-sm"
+                  placeholder="Add a note for the user..."
+                  defaultValue={fb.adminNote}
+                  onBlur={e => { if (e.target.value !== fb.adminNote) handleUpdate(fb._id, fb.status, e.target.value) }}
+                />
+              </div>
+              <div className="col-md-2">
+                <button className="btn btn-sm btn-cyan w-100" disabled={updating === fb._id}
+                  onClick={() => handleUpdate(fb._id, fb.status, fb.adminNote)}>
+                  {updating === fb._id ? <span className="spinner-border spinner-border-sm" /> : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+      {toast && (
+        <div className="toast-container-custom">
+          <div className="p-3 rounded-3" style={{ background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', color: 'var(--text-primary)', minWidth: 200 }}>
             <i className="bi bi-check-circle-fill me-2 text-cyan"></i>{toast}
           </div>
         </div>

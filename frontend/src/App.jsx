@@ -10,6 +10,7 @@ import SavingsGoals from './pages/SavingsGoals'
 import WealthAnalytics from './pages/WealthAnalytics'
 import Profile from './pages/Profile'
 import AdminPanel from './pages/AdminPanel'
+import Feedback from './pages/Feedback'
 
 function ProtectedRoute({ children, adminRequired = false }) {
   const { user, loading } = useAuth()
@@ -56,6 +57,9 @@ function AppRoutes() {
       } />
       <Route path="/profile" element={
         <ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>
+      } />
+      <Route path="/feedback" element={
+        <ProtectedRoute><AppLayout><Feedback /></AppLayout></ProtectedRoute>
       } />
       <Route path="/admin" element={
         <ProtectedRoute adminRequired><AppLayout><AdminPanel /></AppLayout></ProtectedRoute>

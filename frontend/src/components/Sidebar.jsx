@@ -7,6 +7,7 @@ const navItems = [
   { to: '/habits', icon: 'bi-lightning-charge-fill', label: 'Habit Tracker' },
   { to: '/goals', icon: 'bi-bullseye', label: 'Savings Goals' },
   { to: '/analytics', icon: 'bi-bar-chart-line-fill', label: 'Wealth Analytics' },
+  { to: '/feedback', icon: 'bi-chat-square-text-fill', label: 'Feedback' },
   { to: '/profile', icon: 'bi-person-circle', label: 'Profile' },
 ]
 
