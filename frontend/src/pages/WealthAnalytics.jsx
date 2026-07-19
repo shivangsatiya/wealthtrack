@@ -145,7 +145,14 @@ export default function WealthAnalytics() {
         <div className="row align-items-center">
           <div className="col-md-4 text-center text-md-start mb-3 mb-md-0">
             <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Net Worth</div>
-            <div className="net-worth-number">{fmt(netWorth)}</div>
+            <div
+              className="net-worth-number"
+              style={{
+                  animation: 'netWorthPulse 3s ease-in-out infinite',
+                }}
+            >
+              {fmt(netWorth)}
+            </div>
             <div style={{ color: netWorth >= 0 ? 'var(--green-400)' : 'var(--red-400)', fontSize: '0.85rem', marginTop: 6 }}>
               <i className={`bi bi-arrow-${netWorth >= 0 ? 'up' : 'down'}-circle me-1`}></i>
               {netWorth >= 0 ? 'Positive net worth' : 'Liabilities exceed assets'}
