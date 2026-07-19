@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Line, Doughnut } from 'react-chartjs-2'
 import {
@@ -10,6 +10,59 @@ import { useAuth, API } from '../context/AuthContext'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+function useCountUp(target, duration = 1500) {
+  const [count, setCount] = useState(0)
+  const raf = useRef(null)
+  useEffect(() => {
+    if (!target) return
+    let start = null
+    const step = (timestamp) => {
+      if (!start) start = timestamp
+      const progress = Math.min((timestamp - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(ease * target))
+      if (progress < 1) raf.current = requestAnimationFrame(step)
+    }
+    raf.current = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf.current)
+  }, [target, duration])
+  return count
+}
+
+function StatCard({ label, value, color, icon, sub, habits }) {
+  const count = useCountUp(value || 0)
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div className="col-6 col-lg-3">
+      <div
+        className="stat-card h-100"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          transition: 'all 0.3s',
+          boxShadow: hovered ? `0 0 24px ${color}30` : 'none',
+          borderColor: hovered ? color : 'var(--border-color)',
+          cursor: 'default'
+        }}
+      >
+        <div className="d-flex justify-content-between align-items-start mb-2">
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+          <i className={`bi ${icon}`} style={{ color, fontSize: '1.2rem', transition: 'transform 0.3s', transform: hovered ? 'scale(1.2)' : 'scale(1)' }}></i>
+        </div>
+        <div style={{
+          fontSize: '1.4rem', fontWeight: 700, color,
+          transition: 'all 0.3s',
+          textShadow: hovered ? `0 0 20px ${color}60` : 'none'
+        }}>
+          {habits ? habits : `₹${count.toLocaleString('en-IN')}`}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>{sub}</div>
+      </div>
+    </div>
+  )
+}
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -116,23 +169,10 @@ export default function Dashboard() {
 
       {/* Stat cards */}
       <div className="row g-3 mb-4">
-        {[
-          { label: 'Total Income', value: fmt(totalIncome), icon: 'bi-arrow-down-circle-fill', color: 'var(--cyan-500)', sub: `${new Date().getFullYear()} YTD` },
-          { label: 'Total Expenses', value: fmt(totalExpense), icon: 'bi-arrow-up-circle-fill', color: 'var(--red-400)', sub: `${new Date().getFullYear()} YTD` },
-          { label: 'Net Savings', value: fmt(netSavings), icon: 'bi-piggy-bank-fill', color: 'var(--green-400)', sub: netSavings >= 0 ? 'Surplus' : 'Deficit' },
-          { label: 'Habits Today', value: `${habitsDoneToday}/${habits.length}`, icon: 'bi-lightning-charge-fill', color: 'var(--amber-400)', sub: 'completed' },
-        ].map((card, i) => (
-          <div className="col-6 col-lg-3" key={i}>
-            <div className="stat-card h-100">
-              <div className="d-flex justify-content-between align-items-start mb-2">
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</span>
-                <i className={`bi ${card.icon}`} style={{ color: card.color, fontSize: '1.2rem' }}></i>
-              </div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 700, color: card.color }}>{card.value}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>{card.sub}</div>
-            </div>
-          </div>
-        ))}
+        <StatCard label="Total Income" value={totalIncome} color="var(--cyan-500)" icon="bi-arrow-down-circle-fill" sub={`${new Date().getFullYear()} YTD`} />
+        <StatCard label="Total Expenses" value={totalExpense} color="var(--red-400)" icon="bi-arrow-up-circle-fill" sub={`${new Date().getFullYear()} YTD`} />
+        <StatCard label="Net Savings" value={netSavings} color="var(--green-400)" icon="bi-piggy-bank-fill" sub={netSavings >= 0 ? 'Surplus' : 'Deficit'} />
+        <StatCard label="Habits Today" value={null} color="var(--amber-400)" icon="bi-lightning-charge-fill" sub="completed" habits={`${habitsDoneToday}/${habits.length}`} />
       </div>
 
       {/* Charts row */}
@@ -164,7 +204,6 @@ export default function Dashboard() {
 
       {/* Bottom row */}
       <div className="row g-3">
-        {/* Recent transactions */}
         <div className="col-lg-6">
           <div className="card-dark p-3">
             <h6 className="mb-3" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Recent Transactions</h6>
@@ -184,7 +223,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Goals summary */}
         <div className="col-lg-6">
           <div className="card-dark p-3">
             <h6 className="mb-3" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Savings Goals</h6>
