@@ -334,3 +334,208 @@ body {
 .card-dark {
   animation: fadeInUp 0.4s ease forwards;
 }
+
+/* ── PAGE TRANSITIONS ── */
+.main-content > div {
+  animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SIDEBAR ENHANCEMENTS ── */
+.nav-item-custom {
+  position: relative;
+  overflow: hidden;
+}
+.nav-item-custom::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0,198,215,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.nav-item-custom:hover::before { opacity: 1; }
+.nav-item-custom.active::before { opacity: 1; }
+.nav-item-custom i {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-item-custom:hover i { transform: scale(1.2); }
+.nav-item-custom.active i {
+  filter: drop-shadow(0 0 6px var(--cyan-500));
+}
+
+/* ── CARD HOVER LIFT ── */
+.card-dark {
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+.card-dark:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+/* ── HABIT CARD ANIMATIONS ── */
+.habit-card {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.habit-card:hover {
+  transform: translateY(-3px) !important;
+}
+.habit-card.completed-today {
+  animation: completedPulse 0.5s ease forwards;
+}
+@keyframes completedPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.02); box-shadow: 0 0 20px rgba(16,185,129,0.3); }
+  100% { transform: scale(1); }
+}
+
+/* ── GOAL CARD ANIMATIONS ── */
+.goal-card {
+  transition: all 0.3s ease !important;
+}
+.goal-card:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+
+/* ── PROGRESS BAR ANIMATION ── */
+.progress-bar-cyan, .progress-bar-green, .progress-bar-amber {
+  animation: progressGrow 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: left;
+}
+@keyframes progressGrow {
+  from { transform: scaleX(0); opacity: 0.5; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+
+/* ── STAT CARD STAGGER ── */
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+/* ── TABLE ROW ANIMATION ── */
+.table-dark-custom tbody tr {
+  animation: fadeInUp 0.3s ease forwards;
+  opacity: 0;
+}
+.table-dark-custom tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.table-dark-custom tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.table-dark-custom tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.table-dark-custom tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.table-dark-custom tbody tr:nth-child(5) { animation-delay: 0.25s; }
+.table-dark-custom tbody tr:nth-child(6) { animation-delay: 0.3s; }
+.table-dark-custom tbody tr:nth-child(7) { animation-delay: 0.35s; }
+.table-dark-custom tbody tr:nth-child(8) { animation-delay: 0.4s; }
+.table-dark-custom tbody tr:nth-child(9) { animation-delay: 0.45s; }
+.table-dark-custom tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+/* ── BUTTON ANIMATIONS ── */
+.btn-cyan {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s !important;
+}
+.btn-cyan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-cyan:hover::after { opacity: 1; }
+.btn-cyan:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(0,198,215,0.4) !important;
+}
+.btn-cyan:active { transform: translateY(0) !important; }
+
+/* ── MODAL ANIMATION ── */
+.modal.show .modal-dialog {
+  animation: modalSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── BADGE PULSE (streak) ── */
+.streak-badge {
+  animation: streakPulse 2s ease-in-out infinite;
+}
+@keyframes streakPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.3); }
+  50%       { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+}
+
+/* ── LOGO GLOW ── */
+.sidebar-logo {
+  background: linear-gradient(135deg, rgba(0,198,215,0.05), transparent);
+  position: relative;
+}
+.sidebar-logo::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 1.5rem; right: 1.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-500), transparent);
+  opacity: 0.3;
+}
+
+/* ── TOAST ANIMATION ── */
+.toast-container-custom > div {
+  animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(100px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── SPINNER GLOW ── */
+.spinner-cyan {
+  filter: drop-shadow(0 0 8px var(--cyan-500));
+}
+
+/* ── NUMBER GLOW on hover ── */
+.net-worth-number:hover {
+  text-shadow: 0 0 40px rgba(0,198,215,0.9), 0 0 80px rgba(0,198,215,0.5) !important;
+  transition: text-shadow 0.3s;
+}
+
+/* ── SCROLLBAR UPGRADE ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--cyan-500), var(--purple-500));
+  border-radius: 999px;
+}
+
+/* ── FORM INPUT FLOAT LABEL EFFECT ── */
+.form-control-dark, .form-select-dark {
+  transition: all 0.25s ease !important;
+}
+.form-control-dark:hover {
+  border-color: rgba(0,198,215,0.3) !important;
+}
+
+/* ── PAGE TITLE UNDERLINE ── */
+.page-title {
+  position: relative;
+  display: inline-block;
+}
+.page-title::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 40px; height: 3px;
+  background: linear-gradient(90deg, var(--cyan-500), transparent);
+  border-radius: 999px;
+  animation: titleLineGrow 0.6s ease forwards;
+}
+@keyframes titleLineGrow {
+  from { width: 0; opacity: 0; }
+  to   { width: 40px; opacity: 1; }
+}
