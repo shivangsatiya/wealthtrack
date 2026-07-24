@@ -1,0 +1,250 @@
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
+export default function Login() {
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const { login } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    setTimeout(() => setMounted(true), 100)
+  }, [])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      await login(form.email, form.password)
+      navigate('/')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full border-4 border-primary/20 border-t-primary h-10 w-10"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+
+      {/* Mobile layout */}
+      <div className="flex-1 md:hidden p-6">
+        <div className="flex items-center justify-center space-x-2 mb-6">
+          <span className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Wealth
+          </span>
+          <span className="text-3xl font-bold text-primary">Track</span>
+        </div>
+        <p className="text-center text-muted mb-6">
+          Build lasting financial habits, track your wealth growth, and achieve your goals — all in one place.
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-muted">Email address</label>
+            <input
+              type="email"
+              className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-card/70 backdrop-blur-sm border border-border/30 text-primary"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </div>
+          <div className="relative">
+            <label className="block text-sm font-medium mb-2 text-muted">Password</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className="w-full px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-card/70 backdrop-blur-sm border border-border/30 text-primary pr-10"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={e => setForm({ ...form, password: e.target.value })}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-2 flex items-center pr-2"
+            >
+              <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} text-muted`} />
+            </button>
+          </div>
+          {error && (
+            <div className="bg-error/20 text-error px-4 py-2 rounded-lg mb-4">
+              <i className="bi bi-exclamation-circle-fill me-2"></i>
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full px-4 py-2 bg-primary text-primary/90 hover:bg-primary/80 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-primary/20 border-t-primary"></div>
+                <span>Signing in...</span>
+              </>
+            ) : (
+              <>
+                <i className="bi bi-box-arrow-in-right"></i>
+                <span>Sign In</span>
+              </>
+            )}
+          </button>
+          <p className="text-center text-sm text-muted mt-4">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-primary hover:underline">
+              Create one free
+            </Link>
+          </p>
+        </form>
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden md:flex-1 md:flex md:flex-col md:items-center md:justify-center">
+        {/* Left side - Illustration and text */}
+        <div className="hidden md:block flex-1 flex flex-col items-center justify-center p-12 bg-gradient-to-br from-primary/5 to-bg-secondary/5 border-r border-border/20">
+          <div className="text-center space-y-6 mb-12">
+            <div className="flex items-center justify-center space-x-2">
+              <span className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Wealth
+              </span>
+              <span className="text-4xl font-bold text-primary">Track</span>
+            </div>
+            <h2 className="text-2xl font-bold text-primary max-w-md">
+              Take control of<br />
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                your finances
+              </span>
+            </h2>
+            <p className="text-lg text-muted max-w-md">
+              Build lasting financial habits, track your wealth growth, and achieve your goals — all in one place.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-6 max-w-md">
+            {[
+              { value: '₹8,72,000', label: 'Net worth tracked', icon: 'bi-graph-up-arrow', color: 'primary' },
+              { value: '22 days', label: 'Longest habit streak', icon: 'bi-fire', color: 'accent' },
+              { value: '4 goals', label: 'Savings goals set', icon: 'bi-bullseye', color: 'secondary' },
+              { value: '100%', label: 'Free to use', icon: 'bi-shield-check-fill', color: 'purple' },
+            ].map((stat, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <div className="p-3 rounded-lg bg-primary/10">
+                  <i className={`bi ${stat.icon} text-${stat.color} text-xl`}></i>
+                </div>
+                <div>
+                  <p className="font-medium text-primary">{stat.value}</p>
+                  <p className="text-sm text-muted">{stat.label}</p>
+                </div>
+              )
+            ))}
+          </div>
+        </div>
+
+        {/* Right side - Login form */}
+        <div className="w-full max-w-md p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-primary">
+                <i className="bi bi-box-arrow-in-right me-2"></i>Welcome back
+              </h2>
+              <p className="text-sm text-muted">Sign in to continue to your dashboard</p>
+            </div>
+
+            {error && (
+              <div className="bg-error/20 border border-error/30 rounded-lg p-4">
+                <div className="flex items-center space-x-2">
+                  <i className="bi bi-exclamation-circle-fill text-error"></i>
+                  <span>{error}</span>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-muted">Email address</label>
+              <input
+                type="email"
+                className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-card/70 backdrop-blur-sm border border-border/30 text-primary"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-medium mb-2 text-muted">Password</label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-card/70 backdrop-blur-sm border border-border/30 text-primary pr-10"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={e => setForm({ ...form, password: e.target.value })}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center pr-2"
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} text-muted`} />
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full px-4 py-3 bg-primary text-primary/90 hover:bg-primary/80 disabled:opacity-50 transition-all duration-200"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin h-5 w-5 border-2 border-primary/20 border-t-primary me-2"></div>
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-box-arrow-in-right me-2"></i>
+                  <span>Sign In</span>
+                </>
+              )}
+            </button>
+
+            <div className="text-center mt-4">
+              <p className="text-sm text-muted">
+                Try our demo account:
+                <span
+                  onClick={() => setForm({ email: 'demo@example.com', password: 'password123' })}
+                  className="text-primary font-medium cursor-pointer hover:underline"
+                >
+                  demo@example.com
+                </span>
+              </p>
+            </div>
+
+            <div className="text-center mt-6">
+              <p className="text-sm text-muted">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-primary font-medium hover:underline">
+                  Create one free
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}

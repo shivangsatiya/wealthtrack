@@ -6,7 +6,7 @@ const OCCUPATIONS = ['Student','Software Engineer','Business Owner','Freelancer'
 const CURRENCIES = ['INR','USD','EUR','GBP','AED']
 
 export default function Profile() {
-  const { user, login } = useAuth()
+  const { user } = useAuth()
   const [form, setForm] = useState({
     name: user?.name || '',
     profile: {
@@ -27,144 +27,151 @@ export default function Profile() {
     try {
       await axios.put(`${API}/profile`, form)
       showToast('Profile updated!')
-    } catch (err) { showToast(err.response?.data?.message || 'Error') }
-    finally { setSaving(false) }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error saving profile')
+    } finally { setSaving(false) }
   }
 
   const setProfileField = (key, val) => setForm(f => ({ ...f, profile: { ...f.profile, [key]: val } }))
 
   return (
     <div>
-      <div className="page-header">
-        <h1 className="page-title">Profile</h1>
-        <p className="page-subtitle">Manage your financial profile</p>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Profile</h1>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>Manage your financial profile</p>
       </div>
 
+      {/* FIXED: removed Tailwind grid, using Bootstrap grid */}
       <div className="row g-4">
         {/* Avatar card */}
         <div className="col-md-4">
-          <div className="card-dark p-4 text-center">
+          <div style={{ ...cardStyle, textAlign: 'center' }}>
             <div style={{
               width: 80, height: 80, borderRadius: '50%',
-              background: 'var(--navy-500)', border: '3px solid var(--cyan-500)',
+              background: 'rgba(6,182,212,0.1)',
+              border: '3px solid var(--color-primary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '2rem', fontWeight: 700, color: 'var(--cyan-500)',
+              fontSize: '2rem', fontWeight: 700, color: 'var(--color-primary)',
               margin: '0 auto 1rem'
             }}>
               {user?.name?.[0]?.toUpperCase()}
             </div>
-            <h5 style={{ fontWeight: 700 }}>{user?.name}</h5>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{user?.email}</p>
-            <span className="badge rounded-pill" style={{
-              background: user?.role === 'admin' ? 'rgba(139,92,246,0.15)' : 'var(--cyan-glow)',
-              color: user?.role === 'admin' ? 'var(--purple-500)' : 'var(--cyan-500)',
-              border: `1px solid ${user?.role === 'admin' ? 'rgba(139,92,246,0.3)' : 'rgba(0,198,215,0.3)'}`,
-              fontSize: '0.75rem', textTransform: 'capitalize'
+            <h5 style={{ fontWeight: 700, marginBottom: 4 }}>{user?.name}</h5>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginBottom: 8 }}>{user?.email}</p>
+            <span style={{
+              display: 'inline-block', padding: '3px 12px', borderRadius: 999,
+              fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize',
+              background: user?.role === 'admin' ? 'rgba(139,92,246,0.15)' : 'rgba(6,182,212,0.12)',
+              color: user?.role === 'admin' ? '#8b5cf6' : 'var(--color-primary)',
+              border: `1px solid ${user?.role === 'admin' ? 'rgba(139,92,246,0.3)' : 'rgba(6,182,212,0.3)'}`
             }}>
               {user?.role}
             </span>
 
-            <div className="glow-divider mt-3" />
-
-            <div className="mt-3 text-start">
+            <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
               {[
                 { label: 'Member since', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) : '—' },
                 { label: 'Currency', value: user?.profile?.currency || 'INR' },
                 { label: 'Monthly Income', value: user?.profile?.monthlyIncome ? `₹${Number(user.profile.monthlyIncome).toLocaleString('en-IN')}` : 'Not set' },
               ].map((item, i) => (
-                <div key={i} className="d-flex justify-content-between py-2" style={{ borderBottom: '1px solid var(--border-color)', fontSize: '0.85rem' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>{item.label}</span>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{item.value}</span>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--color-border)', fontSize: '0.85rem' }}>
+                  <span style={{ color: 'var(--color-text-muted)' }}>{item.label}</span>
+                  <span style={{ fontWeight: 500 }}>{item.value}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Edit form */}
+        {/* Edit form - FIXED: removed all Tailwind classes */}
         <div className="col-md-8">
-          <div className="card-dark p-4">
-            <h6 className="mb-4" style={{ fontWeight: 600, color: 'var(--cyan-500)' }}>
+          <div style={cardStyle}>
+            <h6 style={{ fontWeight: 600, marginBottom: '1.25rem', color: 'var(--color-primary)' }}>
               <i className="bi bi-pencil-square me-2"></i>Edit Profile
             </h6>
             <form onSubmit={handleSave}>
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Full Name</label>
-                  <input type="text" className="form-control form-control-dark"
+                  <label style={labelStyle}>Full Name</label>
+                  <input type="text" style={inputStyle}
                     value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Phone</label>
-                  <input type="tel" className="form-control form-control-dark" placeholder="+91 XXXXXXXXXX"
+                  <label style={labelStyle}>Phone</label>
+                  <input type="tel" style={inputStyle} placeholder="+91 XXXXXXXXXX"
                     value={form.profile.phone} onChange={e => setProfileField('phone', e.target.value)} />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Occupation</label>
-                  <select className="form-select form-select-dark" value={form.profile.occupation} onChange={e => setProfileField('occupation', e.target.value)}>
+                  <label style={labelStyle}>Occupation</label>
+                  <select style={inputStyle} value={form.profile.occupation} onChange={e => setProfileField('occupation', e.target.value)}>
                     <option value="">Select occupation</option>
                     {OCCUPATIONS.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Monthly Income (₹)</label>
-                  <input type="number" className="form-control form-control-dark" placeholder="e.g. 50000"
+                  <label style={labelStyle}>Monthly Income (₹)</label>
+                  <input type="number" style={inputStyle} placeholder="e.g. 50000"
                     value={form.profile.monthlyIncome} onChange={e => setProfileField('monthlyIncome', e.target.value)} min="0" />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Preferred Currency</label>
-                  <select className="form-select form-select-dark" value={form.profile.currency} onChange={e => setProfileField('currency', e.target.value)}>
+                  <label style={labelStyle}>Preferred Currency</label>
+                  <select style={inputStyle} value={form.profile.currency} onChange={e => setProfileField('currency', e.target.value)}>
                     {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Financial Goal Summary</label>
-                  <textarea className="form-control form-control-dark" rows={3}
-                    placeholder="e.g. I want to save ₹5L in 2 years, pay off my loan, and start investing in mutual funds."
+                  <label style={labelStyle}>Financial Goal Summary</label>
+                  <textarea style={{ ...inputStyle, minHeight: 90, resize: 'vertical' }}
+                    placeholder="e.g. I want to save ₹5L in 2 years, pay off my loan, and start investing."
                     value={form.profile.financialGoalSummary}
                     onChange={e => setProfileField('financialGoalSummary', e.target.value)} />
                 </div>
               </div>
-
-              <div className="mt-4">
-                <button type="submit" className="btn btn-cyan px-4" disabled={saving}>
-                  {saving ? <><span className="spinner-border spinner-border-sm me-2" />Saving...</> : <><i className="bi bi-check2-circle me-2"></i>Save Changes</>}
+              {/* FIXED: was Tailwind btn class, now inline style button */}
+              <div style={{ marginTop: '1.25rem' }}>
+                <button type="submit" disabled={saving} style={btnPrimary}>
+                  {saving
+                    ? <><span className="spinner-border spinner-border-sm me-2" />Saving...</>
+                    : <><i className="bi bi-check2-circle me-2"></i>Save Changes</>
+                  }
                 </button>
               </div>
             </form>
           </div>
 
           {/* Security section */}
-          <div className="card-dark p-4 mt-3">
-            <h6 className="mb-3" style={{ fontWeight: 600 }}>
-              <i className="bi bi-shield-lock me-2 text-cyan"></i>Account Security
+          <div style={{ ...cardStyle, marginTop: '1rem' }}>
+            <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>
+              <i className="bi bi-shield-lock me-2" style={{ color: 'var(--color-primary)' }}></i>Account Security
             </h6>
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Email</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{user?.email}</div>
+            {[
+              { label: 'Email', sub: user?.email, badge: 'Verified', badgeColor: 'var(--color-secondary)' },
+              { label: 'Password', sub: 'Last changed: Account creation', badge: '••••••••', badgeColor: 'var(--color-text-muted)' },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: i === 0 ? '1px solid var(--color-border)' : 'none' }}>
+                <div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>{item.label}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{item.sub}</div>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: item.badgeColor, fontWeight: 600 }}>{item.badge}</span>
               </div>
-              <span className="badge badge-green rounded-pill">Verified</span>
-            </div>
-            <div className="glow-divider" />
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>Password</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Last changed: Account creation</div>
-              </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>••••••••</span>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
       {toast && (
-        <div className="toast-container-custom">
-          <div className="p-3 rounded-3" style={{ background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', color: 'var(--text-primary)', minWidth: 220 }}>
-            <i className="bi bi-check-circle-fill me-2 text-cyan"></i>{toast}
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
+          <div style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-primary)', borderRadius: '0.75rem', padding: '0.75rem 1.25rem', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="bi bi-check-circle-fill" style={{ color: 'var(--color-primary)' }}></i>{toast}
           </div>
         </div>
       )}
     </div>
   )
 }
+
+const cardStyle = { background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '0.75rem', padding: '1.25rem' }
+const inputStyle = { width: '100%', padding: '0.7rem 0.9rem', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '0.5rem', color: 'var(--color-text-primary)', fontSize: '0.875rem', outline: 'none' }
+const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 6 }
+const btnPrimary = { background: 'var(--color-primary)', border: 'none', borderRadius: '0.5rem', color: '#0a0e1a', fontWeight: 700, fontSize: '0.875rem', padding: '0.7rem 1.5rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }

@@ -19,8 +19,10 @@ export default function AdminPanel() {
         axios.get(`${API}/admin/users`)
       ])
       setStats(s.data); setUsers(u.data)
-    } finally { setLoading(false) }
+    } catch (err) { console.error(err) }
+    finally { setLoading(false) }
   }
+
   useEffect(() => { fetchData() }, [])
 
   const handleToggle = async (id) => {
@@ -31,49 +33,54 @@ export default function AdminPanel() {
     } catch (err) { showToast(err.response?.data?.message || 'Error') }
   }
 
-  if (loading) return <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}><div className="spinner-border spinner-cyan" /></div>
+  // FIXED: replaced spinner-cyan with Bootstrap spinner
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+      <div className="spinner-border" style={{ color: 'var(--color-primary)' }} />
+    </div>
+  )
 
   return (
     <div>
-      <div className="page-header d-flex align-items-center gap-2">
-        <div>
-          <h1 className="page-title"><i className="bi bi-shield-fill text-cyan me-2"></i>Admin Panel</h1>
-          <p className="page-subtitle">Platform management and analytics</p>
-        </div>
+      {/* FIXED: replaced page-title/page-subtitle classes with inline styles */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>
+          <i className="bi bi-shield-fill me-2" style={{ color: 'var(--color-primary)' }}></i>Admin Panel
+        </h1>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>Platform management and analytics</p>
       </div>
 
-      {/* Platform stats */}
+      {/* FIXED: replaced --cyan-500 with --color-primary, removed stat-card class */}
       <div className="row g-3 mb-4">
         {[
-          { label: 'Total Users', value: stats?.totalUsers, icon: 'bi-people-fill', color: 'var(--cyan-500)' },
-          { label: 'Active Users', value: stats?.activeUsers, icon: 'bi-person-check-fill', color: 'var(--green-400)' },
-          { label: 'New This Month', value: stats?.newUsersThisMonth, icon: 'bi-person-plus-fill', color: 'var(--amber-400)' },
-          { label: 'Total Transactions', value: stats?.totalTransactions, icon: 'bi-receipt-cutoff', color: 'var(--purple-500)' },
-          { label: 'Active Habits', value: stats?.totalHabits, icon: 'bi-lightning-charge-fill', color: 'var(--cyan-500)' },
-          { label: 'Goals Completed', value: stats?.completedGoals, icon: 'bi-trophy-fill', color: 'var(--green-400)' },
+          { label: 'Total Users', value: stats?.totalUsers, icon: 'bi-people-fill', color: 'var(--color-primary)' },
+          { label: 'Active Users', value: stats?.activeUsers, icon: 'bi-person-check-fill', color: 'var(--color-secondary)' },
+          { label: 'New This Month', value: stats?.newUsersThisMonth, icon: 'bi-person-plus-fill', color: 'var(--color-accent)' },
+          { label: 'Total Transactions', value: stats?.totalTransactions, icon: 'bi-receipt-cutoff', color: 'var(--color-purple)' },
+          { label: 'Active Habits', value: stats?.totalHabits, icon: 'bi-lightning-charge-fill', color: 'var(--color-primary)' },
+          { label: 'Goals Completed', value: stats?.completedGoals, icon: 'bi-trophy-fill', color: 'var(--color-secondary)' },
         ].map((s, i) => (
           <div className="col-6 col-lg-4 col-xl-2" key={i}>
-            <div className="stat-card text-center">
+            <div style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.3rem', color: s.color }}></i>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value ?? '—'}</div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{s.label}</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Tabs */}
-      <div className="d-flex gap-2 mb-4">
-        {['overview','users', 'feedback'].map(tab => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
-            className="btn btn-sm"
-            style={{
-              background: activeTab === tab ? 'var(--cyan-glow)' : 'var(--navy-600)',
-              border: `1px solid ${activeTab === tab ? 'var(--cyan-500)' : 'var(--border-color)'}`,
-              color: activeTab === tab ? 'var(--cyan-500)' : 'var(--text-secondary)',
-              borderRadius: 8, textTransform: 'capitalize', padding: '6px 18px',
-              fontWeight: activeTab === tab ? 600 : 400
-            }}>
+      {/* FIXED: replaced --cyan-500/--navy-600/--border-color/--text-secondary with new vars */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem' }}>
+        {['overview','users','feedback'].map(tab => (
+          <button key={tab} onClick={() => setActiveTab(tab)} style={{
+            padding: '6px 18px', borderRadius: 8,
+            fontWeight: activeTab === tab ? 600 : 400,
+            background: activeTab === tab ? 'rgba(6,182,212,0.12)' : 'var(--color-bg-secondary)',
+            border: `1px solid ${activeTab === tab ? 'var(--color-primary)' : 'var(--color-border)'}`,
+            color: activeTab === tab ? 'var(--color-primary)' : 'var(--color-text-muted)',
+            cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s'
+          }}>
             {tab === 'overview' ? 'Overview' : tab === 'users' ? 'Manage Users' : 'Feedback'}
           </button>
         ))}
@@ -81,29 +88,26 @@ export default function AdminPanel() {
 
       {activeTab === 'overview' && (
         <div className="row g-3">
+          {/* FIXED: replaced card-dark with inline cardStyle, fixed --text-muted/--border-color/--navy-500/--cyan-500 */}
           <div className="col-lg-6">
-            <div className="card-dark p-4">
-              <h6 className="mb-3" style={{ fontWeight: 600 }}>Recent Registrations</h6>
+            <div style={cardStyle}>
+              <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Recent Registrations</h6>
               {stats?.recentUsers?.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)' }}>No users yet</p>
+                <p style={{ color: 'var(--color-text-muted)' }}>No users yet</p>
               ) : stats?.recentUsers?.map(u => (
-                <div key={u._id} className="d-flex align-items-center gap-3 py-2" style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    background: 'var(--navy-500)', border: '2px solid var(--cyan-500)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.85rem', fontWeight: 700, color: 'var(--cyan-500)', flexShrink: 0
-                  }}>
+                <div key={u._id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0.5rem 0', borderBottom: '1px solid var(--color-border)' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(6,182,212,0.1)', border: '2px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-primary)', flexShrink: 0 }}>
                     {u.name?.[0]?.toUpperCase()}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>{u.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{u.email}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{u.email}</div>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                     {new Date(u.createdAt).toLocaleDateString('en-IN')}
                   </div>
-                  <span className={`badge rounded-pill ${u.isActive ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '0.65rem' }}>
+                  {/* FIXED: replaced badge-green/badge-red with inline styles */}
+                  <span style={{ fontSize: '0.65rem', padding: '3px 8px', borderRadius: 999, background: u.isActive ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: u.isActive ? 'var(--color-secondary)' : 'var(--color-danger)', border: `1px solid ${u.isActive ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
                     {u.isActive ? 'Active' : 'Suspended'}
                   </span>
                 </div>
@@ -112,16 +116,16 @@ export default function AdminPanel() {
           </div>
 
           <div className="col-lg-6">
-            <div className="card-dark p-4">
-              <h6 className="mb-3" style={{ fontWeight: 600 }}>Platform KPIs</h6>
+            <div style={cardStyle}>
+              <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Platform KPIs</h6>
               {[
-                { label: 'Goal Completion Rate', value: stats?.totalGoals ? `${Math.round((stats.completedGoals / stats.totalGoals) * 100)}%` : 'N/A', icon: 'bi-bullseye', color: 'var(--amber-400)' },
-                { label: 'User Activation Rate', value: stats?.totalUsers ? `${Math.round((stats.activeUsers / stats.totalUsers) * 100)}%` : 'N/A', icon: 'bi-person-check', color: 'var(--green-400)' },
-                { label: 'Avg Habits per User', value: stats?.totalUsers ? (stats.totalHabits / stats.totalUsers).toFixed(1) : 'N/A', icon: 'bi-lightning', color: 'var(--cyan-500)' },
-                { label: 'Avg Transactions per User', value: stats?.totalUsers ? (stats.totalTransactions / stats.totalUsers).toFixed(1) : 'N/A', icon: 'bi-receipt', color: 'var(--purple-500)' },
+                { label: 'Goal Completion Rate', value: stats?.totalGoals ? `${Math.round((stats.completedGoals / stats.totalGoals) * 100)}%` : 'N/A', icon: 'bi-bullseye', color: 'var(--color-accent)' },
+                { label: 'User Activation Rate', value: stats?.totalUsers ? `${Math.round((stats.activeUsers / stats.totalUsers) * 100)}%` : 'N/A', icon: 'bi-person-check', color: 'var(--color-secondary)' },
+                { label: 'Avg Habits per User', value: stats?.totalUsers ? (stats.totalHabits / stats.totalUsers).toFixed(1) : 'N/A', icon: 'bi-lightning', color: 'var(--color-primary)' },
+                { label: 'Avg Transactions per User', value: stats?.totalUsers ? (stats.totalTransactions / stats.totalUsers).toFixed(1) : 'N/A', icon: 'bi-receipt', color: 'var(--color-purple)' },
               ].map((kpi, i) => (
-                <div key={i} className="d-flex justify-content-between align-items-center py-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <div className="d-flex align-items-center gap-2">
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid var(--color-border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className={`bi ${kpi.icon}`} style={{ color: kpi.color, fontSize: '1rem' }}></i>
                     <span style={{ fontSize: '0.875rem' }}>{kpi.label}</span>
                   </div>
@@ -134,65 +138,60 @@ export default function AdminPanel() {
       )}
 
       {activeTab === 'users' && (
-        <div className="card-dark">
-          <div className="p-3" style={{ borderBottom: '1px solid var(--border-color)' }}>
-            <h6 style={{ fontWeight: 600, marginBottom: 0 }}>All Users ({users.length})</h6>
+        <div style={cardStyle}>
+          <div style={{ padding: '0 0 0.75rem 0', borderBottom: '1px solid var(--color-border)', marginBottom: '0.5rem' }}>
+            <h6 style={{ fontWeight: 600, margin: 0 }}>All Users ({users.length})</h6>
           </div>
-          <div className="table-responsive">
-            <table className="table table-dark-custom mb-0">
+          {/* FIXED: replaced table-dark-custom class with inline table styles */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Joined</th>
-                  <th>Last Login</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                <tr style={{ background: 'var(--color-bg-secondary)' }}>
+                  {['User','Email','Role','Joined','Last Login','Status','Action'].map(h => (
+                    <th key={h} style={{ padding: '0.65rem 1rem', textAlign: 'left', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {users.map(u => (
-                  <tr key={u._id}>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <div style={{
-                          width: 30, height: 30, borderRadius: '50%',
-                          background: 'var(--navy-500)', border: '1px solid var(--cyan-500)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.75rem', fontWeight: 700, color: 'var(--cyan-500)', flexShrink: 0
-                        }}>
+                  <tr key={u._id}
+                    style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td style={tdStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {/* FIXED: replaced var(--navy-500)/var(--cyan-500) */}
+                        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(6,182,212,0.1)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-primary)', flexShrink: 0 }}>
                           {u.name?.[0]?.toUpperCase()}
                         </div>
                         <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{u.name}</span>
                       </div>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{u.email}</td>
-                    <td>
-                      <span className={`badge rounded-pill ${u.role === 'admin' ? '' : 'badge-cyan'}`}
-                        style={u.role === 'admin' ? { background: 'rgba(139,92,246,0.15)', color: 'var(--purple-500)', border: '1px solid rgba(139,92,246,0.3)', fontSize: '0.7rem' } : { fontSize: '0.7rem' }}>
+                    <td style={{ ...tdStyle, color: 'var(--color-text-muted)' }}>{u.email}</td>
+                    <td style={tdStyle}>
+                      {/* FIXED: replaced badge-cyan with inline style */}
+                      <span style={{ fontSize: '0.7rem', padding: '3px 8px', borderRadius: 999, background: u.role === 'admin' ? 'rgba(139,92,246,0.12)' : 'rgba(6,182,212,0.1)', color: u.role === 'admin' ? 'var(--color-purple)' : 'var(--color-primary)', border: `1px solid ${u.role === 'admin' ? 'rgba(139,92,246,0.3)' : 'rgba(6,182,212,0.2)'}` }}>
                         {u.role}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                    <td style={{ ...tdStyle, color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>{new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
+                    <td style={{ ...tdStyle, color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
                       {u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('en-IN') : 'Never'}
                     </td>
-                    <td>
-                      <span className={`badge rounded-pill ${u.isActive ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '0.7rem' }}>
+                    <td style={tdStyle}>
+                      {/* FIXED: replaced badge-green/badge-red with inline styles */}
+                      <span style={{ fontSize: '0.7rem', padding: '3px 8px', borderRadius: 999, background: u.isActive ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: u.isActive ? 'var(--color-secondary)' : 'var(--color-danger)', border: `1px solid ${u.isActive ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
                         {u.isActive ? 'Active' : 'Suspended'}
                       </span>
                     </td>
-                    <td>
+                    <td style={tdStyle}>
                       {u.role !== 'admin' && (
-                        <button className="btn btn-sm"
-                          style={{
-                            background: u.isActive ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
-                            border: `1px solid ${u.isActive ? 'var(--red-500)' : 'var(--green-500)'}`,
-                            color: u.isActive ? 'var(--red-400)' : 'var(--green-400)',
-                            fontSize: '0.75rem', padding: '3px 10px', borderRadius: 6
-                          }}
-                          onClick={() => handleToggle(u._id)}>
+                        <button onClick={() => handleToggle(u._id)} style={{
+                          fontSize: '0.75rem', padding: '4px 12px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.2s',
+                          background: u.isActive ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+                          border: `1px solid ${u.isActive ? 'var(--color-danger)' : 'var(--color-secondary)'}`,
+                          color: u.isActive ? 'var(--color-danger)' : 'var(--color-secondary)'
+                        }}>
                           {u.isActive ? 'Suspend' : 'Activate'}
                         </button>
                       )}
@@ -204,14 +203,15 @@ export default function AdminPanel() {
           </div>
         </div>
       )}
-    {activeTab === 'feedback' && (
-      <FeedbackTab />
-    )}
+
+      {activeTab === 'feedback' && (
+        <FeedbackTab />
+      )}
 
       {toast && (
-        <div className="toast-container-custom">
-          <div className="p-3 rounded-3" style={{ background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', color: 'var(--text-primary)', minWidth: 220 }}>
-            <i className="bi bi-check-circle-fill me-2 text-cyan"></i>{toast}
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
+          <div style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-primary)', borderRadius: '0.75rem', padding: '0.75rem 1.25rem', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="bi bi-check-circle-fill" style={{ color: 'var(--color-primary)' }}></i>{toast}
           </div>
         </div>
       )}
@@ -230,6 +230,7 @@ function FeedbackTab() {
   useEffect(() => {
     axios.get(`${API}/feedback`)
       .then(res => setFeedbacks(res.data))
+      .catch(err => console.error(err))
       .finally(() => setLoading(false))
   }, [])
 
@@ -243,60 +244,65 @@ function FeedbackTab() {
     finally { setUpdating(null) }
   }
 
-  const STATUS_COLORS = {
-    Pending: { bg: 'rgba(245,158,11,0.12)', color: 'var(--amber-400)', border: 'rgba(245,158,11,0.3)' },
-    Reviewed: { bg: 'var(--cyan-glow)', color: 'var(--cyan-500)', border: 'rgba(0,198,215,0.3)' },
-    Resolved: { bg: 'rgba(16,185,129,0.12)', color: 'var(--green-400)', border: 'rgba(16,185,129,0.3)' },
+  const STATUS_STYLES = {
+    Pending:  { bg: 'rgba(245,158,11,0.12)',  color: 'var(--color-accent)',    border: 'rgba(245,158,11,0.3)' },
+    Reviewed: { bg: 'rgba(6,182,212,0.12)',   color: 'var(--color-primary)',  border: 'rgba(6,182,212,0.3)' },
+    Resolved: { bg: 'rgba(16,185,129,0.12)',  color: 'var(--color-secondary)', border: 'rgba(16,185,129,0.3)' },
   }
 
-  if (loading) return <div className="text-center py-5"><div className="spinner-border spinner-cyan" /></div>
+  if (loading) return (
+    <div style={{ textAlign: 'center', padding: '3rem' }}>
+      <div className="spinner-border" style={{ color: 'var(--color-primary)' }} />
+    </div>
+  )
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 style={{ fontWeight: 600, marginBottom: 0 }}>All Feedback ({feedbacks.length})</h6>
-        <div className="d-flex gap-2">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h6 style={{ fontWeight: 600, margin: 0 }}>All Feedback ({feedbacks.length})</h6>
+        <div style={{ display: 'flex', gap: 8 }}>
           {['Pending','Reviewed','Resolved'].map(s => {
-            const c = STATUS_COLORS[s]
+            const c = STATUS_STYLES[s]
             return (
-              <span key={s} className="badge rounded-pill" style={{ background: c.bg, color: c.color, border: `1px solid ${c.border}`, fontSize: '0.75rem', padding: '5px 10px' }}>
+              <span key={s} style={{ fontSize: '0.75rem', padding: '4px 10px', borderRadius: 999, background: c.bg, color: c.color, border: `1px solid ${c.border}` }}>
                 {feedbacks.filter(f => f.status === s).length} {s}
               </span>
             )
           })}
         </div>
       </div>
+
       {feedbacks.length === 0 ? (
-        <div className="card-dark text-center py-5">
-          <i className="bi bi-inbox" style={{ fontSize: '2.5rem', color: 'var(--text-muted)' }}></i>
-          <p className="mt-2" style={{ color: 'var(--text-muted)' }}>No feedback submitted yet</p>
+        <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
+          <i className="bi bi-inbox" style={{ fontSize: '2.5rem', color: 'var(--color-text-muted)' }}></i>
+          <p style={{ color: 'var(--color-text-muted)', marginTop: '1rem' }}>No feedback submitted yet</p>
         </div>
       ) : feedbacks.map(fb => {
-        const s = STATUS_COLORS[fb.status] || STATUS_COLORS.Pending
+        const s = STATUS_STYLES[fb.status] || STATUS_STYLES.Pending
         return (
-          <div key={fb._id} className="card-dark p-3 mb-3">
-            <div className="d-flex justify-content-between align-items-start mb-2">
+          <div key={fb._id} style={{ ...cardStyle, marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
               <div>
                 <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{fb.subject}</span>
-                <span className="ms-2 badge rounded-pill badge-cyan" style={{ fontSize: '0.7rem' }}>{fb.type}</span>
+                <span style={{ marginLeft: 8, fontSize: '0.7rem', padding: '2px 8px', borderRadius: 999, background: 'rgba(6,182,212,0.1)', color: 'var(--color-primary)', border: '1px solid rgba(6,182,212,0.2)' }}>{fb.type}</span>
               </div>
-              <span className="badge rounded-pill" style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}`, fontSize: '0.7rem' }}>
+              <span style={{ fontSize: '0.7rem', padding: '3px 10px', borderRadius: 999, background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
                 {fb.status}
               </span>
             </div>
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--cyan-500)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(6,182,212,0.1)', border: '1px solid var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-primary)', flexShrink: 0 }}>
                 {fb.user?.name?.[0]?.toUpperCase()}
               </div>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{fb.user?.name} · {fb.user?.email}</span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: 'auto' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{fb.user?.name} · {fb.user?.email}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginLeft: 'auto' }}>
                 {new Date(fb.createdAt).toLocaleDateString('en-IN')}
               </span>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>{fb.message}</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: 12 }}>{fb.message}</p>
             <div className="row g-2">
               <div className="col-md-4">
-                <select className="form-select form-select-dark form-select-sm"
+                <select style={inputStyle}
                   value={fb.status}
                   onChange={e => handleUpdate(fb._id, e.target.value, fb.adminNote)}>
                   <option value="Pending">Pending</option>
@@ -305,14 +311,15 @@ function FeedbackTab() {
                 </select>
               </div>
               <div className="col-md-6">
-                <input type="text" className="form-control form-control-dark form-control-sm"
+                <input type="text" style={inputStyle}
                   placeholder="Add a note for the user..."
                   defaultValue={fb.adminNote}
                   onBlur={e => { if (e.target.value !== fb.adminNote) handleUpdate(fb._id, fb.status, e.target.value) }}
                 />
               </div>
               <div className="col-md-2">
-                <button className="btn btn-sm btn-cyan w-100" disabled={updating === fb._id}
+                <button style={{ ...btnPrimary, width: '100%', justifyContent: 'center' }}
+                  disabled={updating === fb._id}
                   onClick={() => handleUpdate(fb._id, fb.status, fb.adminNote)}>
                   {updating === fb._id ? <span className="spinner-border spinner-border-sm" /> : 'Save'}
                 </button>
@@ -321,13 +328,19 @@ function FeedbackTab() {
           </div>
         )
       })}
+
       {toast && (
-        <div className="toast-container-custom">
-          <div className="p-3 rounded-3" style={{ background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', color: 'var(--text-primary)', minWidth: 200 }}>
-            <i className="bi bi-check-circle-fill me-2 text-cyan"></i>{toast}
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
+          <div style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-primary)', borderRadius: '0.75rem', padding: '0.75rem 1.25rem', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="bi bi-check-circle-fill" style={{ color: 'var(--color-primary)' }}></i>{toast}
           </div>
         </div>
       )}
     </div>
   )
 }
+
+const cardStyle = { background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '0.75rem', padding: '1.25rem' }
+const inputStyle = { width: '100%', padding: '0.5rem 0.75rem', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '0.5rem', color: 'var(--color-text-primary)', fontSize: '0.875rem', outline: 'none' }
+const tdStyle = { padding: '0.75rem 1rem', fontSize: '0.875rem', verticalAlign: 'middle' }
+const btnPrimary = { background: 'var(--color-primary)', border: 'none', borderRadius: '0.5rem', color: '#0a0e1a', fontWeight: 600, fontSize: '0.875rem', padding: '0.5rem 1rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }

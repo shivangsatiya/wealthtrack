@@ -25,6 +25,8 @@ export default function ExpenseTracker() {
       params.append('limit', '100')
       const res = await axios.get(`${API}/transactions?${params}`)
       setTransactions(res.data)
+    } catch (err) {
+      console.error('Error fetching transactions:', err)
     } finally { setLoading(false) }
   }, [filters])
 
@@ -33,126 +35,144 @@ export default function ExpenseTracker() {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
   const handleAdd = async (e) => {
-    e.preventDefault(); setSaving(true)
+    e.preventDefault()
+    setSaving(true)
     try {
       await axios.post(`${API}/transactions`, form)
-      showToast('Transaction added!'); setShowModal(false)
+      showToast('Transaction added!')
+      setShowModal(false)
       setForm({ type: 'expense', amount: '', category: '', description: '', date: new Date().toISOString().split('T')[0] })
       fetchTx()
-    } catch (err) { showToast(err.response?.data?.message || 'Error') }
-    finally { setSaving(false) }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error adding transaction')
+    } finally { setSaving(false) }
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this transaction?')) return
-    await axios.delete(`${API}/transactions/${id}`)
-    setTransactions(t => t.filter(x => x._id !== id))
-    showToast('Deleted')
+    if (!window.confirm('Delete this transaction?')) return
+    try {
+      await axios.delete(`${API}/transactions/${id}`)
+      setTransactions(t => t.filter(x => x._id !== id))
+      showToast('Transaction deleted')
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error deleting transaction')
+    }
   }
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
   const fmt = n => `₹${Number(n).toLocaleString('en-IN')}`
-
   const categories = form.type === 'expense' ? EXPENSE_CATS : INCOME_CATS
 
   return (
     <div>
-      <div className="page-header d-flex justify-content-between align-items-center">
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
-          <h1 className="page-title">Expense Tracker</h1>
-          <p className="page-subtitle">Track your income and expenses</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Expense Tracker</h1>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>Track your income and expenses</p>
         </div>
-        <button className="btn btn-cyan" onClick={() => setShowModal(true)}>
+        <button onClick={() => setShowModal(true)} style={btnPrimary}>
           <i className="bi bi-plus-lg me-2"></i>Add Transaction
         </button>
       </div>
 
-      {/* Summary */}
+      {/* Summary cards - FIXED: removed Tailwind, fixed broken {s.color} string interpolation bug */}
       <div className="row g-3 mb-4">
         {[
-          { label: 'Income', value: fmt(totalIncome), color: 'var(--green-400)', icon: 'bi-arrow-down-circle' },
-          { label: 'Expenses', value: fmt(totalExpense), color: 'var(--red-400)', icon: 'bi-arrow-up-circle' },
-          { label: 'Balance', value: fmt(totalIncome - totalExpense), color: totalIncome >= totalExpense ? 'var(--cyan-500)' : 'var(--red-400)', icon: 'bi-wallet2' },
+          { label: 'Income', value: fmt(totalIncome), color: 'var(--color-primary)', icon: 'bi-arrow-down-circle' },
+          { label: 'Expenses', value: fmt(totalExpense), color: 'var(--color-danger)', icon: 'bi-arrow-up-circle' },
+          { label: 'Balance', value: fmt(totalIncome - totalExpense), color: totalIncome >= totalExpense ? 'var(--color-secondary)' : 'var(--color-danger)', icon: 'bi-wallet2' },
         ].map((s, i) => (
           <div className="col-4" key={i}>
-            <div className="stat-card text-center">
+            <div style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.4rem', color: s.color }}></i>
+              {/* FIXED: was className="text-xl font-bold mt-2 {s.color}" — literal string, not interpolated */}
               <div style={{ fontSize: '1.2rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{s.label}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="card-dark p-3 mb-3">
+      {/* Filters - FIXED: removed Tailwind */}
+      <div style={{ ...cardStyle, marginBottom: '1rem' }}>
         <div className="row g-2 align-items-end">
           <div className="col-6 col-md-3">
-            <label className="form-label" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Type</label>
-            <select className="form-select form-select-dark form-select-sm" value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })}>
+            <label style={{ ...labelStyle, fontSize: '0.78rem' }}>Type</label>
+            <select style={{ ...inputStyle, fontSize: '0.85rem', padding: '0.5rem 0.75rem' }}
+              value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })}>
               <option value="">All</option>
               <option value="income">Income</option>
               <option value="expense">Expense</option>
             </select>
           </div>
           <div className="col-6 col-md-3">
-            <label className="form-label" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Month</label>
-            <select className="form-select form-select-dark form-select-sm" value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })}>
+            <label style={{ ...labelStyle, fontSize: '0.78rem' }}>Month</label>
+            <select style={{ ...inputStyle, fontSize: '0.85rem', padding: '0.5rem 0.75rem' }}
+              value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })}>
               {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, i) => (
                 <option key={m} value={i+1}>{m}</option>
               ))}
             </select>
           </div>
           <div className="col-6 col-md-3">
-            <label className="form-label" style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Year</label>
-            <select className="form-select form-select-dark form-select-sm" value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })}>
+            <label style={{ ...labelStyle, fontSize: '0.78rem' }}>Year</label>
+            <select style={{ ...inputStyle, fontSize: '0.85rem', padding: '0.5rem 0.75rem' }}
+              value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })}>
               {[2023,2024,2025,2026,2027].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>
           <div className="col-6 col-md-3">
-            <button className="btn btn-sm w-100" style={{ background: 'var(--navy-500)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
-              onClick={() => setFilters({ type: '', category: '', month: new Date().getMonth() + 1, year: new Date().getFullYear() })}>
+            <button onClick={() => setFilters({ type: '', category: '', month: new Date().getMonth() + 1, year: new Date().getFullYear() })}
+              style={{ ...btnSecondary, width: '100%', padding: '0.5rem' }}>
               <i className="bi bi-x-lg me-1"></i>Reset
             </button>
           </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card-dark">
+      {/* Table - FIXED: removed Tailwind, fixed spinner */}
+      <div style={cardStyle}>
         {loading ? (
-          <div className="text-center py-5"><div className="spinner-border spinner-cyan" /></div>
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
+            <div className="spinner-border" style={{ color: 'var(--color-primary)' }} />
+          </div>
         ) : transactions.length === 0 ? (
-          <div className="text-center py-5">
-            <i className="bi bi-receipt" style={{ fontSize: '2.5rem', color: 'var(--text-muted)' }}></i>
-            <p className="mt-2" style={{ color: 'var(--text-muted)' }}>No transactions found</p>
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
+            <i className="bi bi-receipt" style={{ fontSize: '2.5rem' }}></i>
+            <p style={{ marginTop: '1rem' }}>No transactions found</p>
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="table table-dark-custom mb-0">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr>
-                  <th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Amount</th><th></th>
+                <tr style={{ background: 'var(--color-bg-secondary)' }}>
+                  {['Date','Type','Category','Description','Amount',''].map(h => (
+                    <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border)' }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {transactions.map(tx => (
-                  <tr key={tx._id}>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{new Date(tx.date).toLocaleDateString('en-IN')}</td>
-                    <td>
-                      <span className={`badge rounded-pill ${tx.type === 'income' ? 'badge-green' : 'badge-red'}`} style={{ fontSize: '0.7rem' }}>
+                  <tr key={tx._id}
+                    style={{ borderBottom: '1px solid var(--color-border)', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--color-bg-secondary)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td style={tdStyle}>{new Date(tx.date).toLocaleDateString('en-IN')}</td>
+                    <td style={tdStyle}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px', borderRadius: 999, background: tx.type === 'income' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: tx.type === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)', border: `1px solid ${tx.type === 'income' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}` }}>
                         {tx.type}
                       </span>
                     </td>
-                    <td style={{ fontSize: '0.875rem' }}>{tx.category}</td>
-                    <td style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{tx.description || '—'}</td>
-                    <td style={{ fontWeight: 600, color: tx.type === 'income' ? 'var(--green-400)' : 'var(--red-400)' }}>
+                    <td style={tdStyle}>{tx.category}</td>
+                    <td style={{ ...tdStyle, color: 'var(--color-text-muted)' }}>{tx.description || '—'}</td>
+                    <td style={{ ...tdStyle, fontWeight: 600, color: tx.type === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)' }}>
                       {tx.type === 'income' ? '+' : '-'}{fmt(tx.amount)}
                     </td>
-                    <td>
-                      <button className="btn btn-sm" style={{ background: 'transparent', border: 'none', color: 'var(--red-400)', padding: '2px 8px' }}
-                        onClick={() => handleDelete(tx._id)}>
+                    <td style={tdStyle}>
+                      <button onClick={() => handleDelete(tx._id)}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-danger)', cursor: 'pointer', padding: '4px 8px', borderRadius: 4 }}>
                         <i className="bi bi-trash3"></i>
                       </button>
                     </td>
@@ -164,79 +184,83 @@ export default function ExpenseTracker() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modal - FIXED: removed Tailwind */}
       {showModal && (
-        <div className="modal show d-block modal-dark" style={{ background: 'rgba(0,0,0,0.7)' }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Add Transaction</h5>
-                <button className="btn-close btn-close-white" onClick={() => setShowModal(false)} />
-              </div>
-              <form onSubmit={handleAdd}>
-                <div className="modal-body">
-                  <div className="mb-3">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Type</label>
-                    <div className="d-flex gap-2">
-                      {['expense','income'].map(t => (
-                        <button key={t} type="button"
-                          className="btn btn-sm flex-fill"
-                          style={{
-                            background: form.type === t ? (t === 'income' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)') : 'var(--navy-500)',
-                            border: `1px solid ${form.type === t ? (t === 'income' ? 'var(--green-500)' : 'var(--red-500)') : 'var(--border-color)'}`,
-                            color: form.type === t ? (t === 'income' ? 'var(--green-400)' : 'var(--red-400)') : 'var(--text-secondary)',
-                            fontWeight: form.type === t ? 600 : 400
-                          }}
-                          onClick={() => setForm({ ...form, type: t, category: '' })}>
-                          {t === 'income' ? '↓ Income' : '↑ Expense'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Amount (₹)</label>
-                    <input type="number" className="form-control form-control-dark" placeholder="0.00" min="1"
-                      value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Category</label>
-                    <select className="form-select form-select-dark" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} required>
-                      <option value="">Select category</option>
-                      {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Description</label>
-                    <input type="text" className="form-control form-control-dark" placeholder="Optional note"
-                      value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Date</label>
-                    <input type="date" className="form-control form-control-dark"
-                      value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-sm" style={{ background: 'var(--navy-500)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
-                    onClick={() => setShowModal(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-cyan btn-sm" disabled={saving}>
-                    {saving ? <span className="spinner-border spinner-border-sm" /> : 'Add Transaction'}
-                  </button>
-                </div>
-              </form>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ ...cardStyle, width: '100%', maxWidth: 480 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <h5 style={{ fontWeight: 700, margin: 0 }}>Add Transaction</h5>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '1.2rem' }}>
+                <i className="bi bi-x-lg"></i>
+              </button>
             </div>
+            <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={labelStyle}>Type</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['expense','income'].map(t => (
+                    <button key={t} type="button"
+                      onClick={() => setForm({ ...form, type: t, category: '' })}
+                      style={{
+                        flex: 1, padding: '0.6rem', borderRadius: '0.5rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
+                        background: form.type === t ? (t === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') : 'var(--color-bg-secondary)',
+                        border: `1px solid ${form.type === t ? (t === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)') : 'var(--color-border)'}`,
+                        color: form.type === t ? (t === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)') : 'var(--color-text-muted)'
+                      }}>
+                      {t === 'income' ? '↓ Income' : '↑ Expense'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Amount (₹)</label>
+                <input type="number" style={inputStyle} placeholder="0.00" min="1"
+                  value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
+              </div>
+              <div>
+                <label style={labelStyle}>Category</label>
+                <select style={inputStyle} value={form.category}
+                  onChange={e => setForm({ ...form, category: e.target.value })} required>
+                  <option value="">Select category</option>
+                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Description</label>
+                <input type="text" style={inputStyle} placeholder="Optional note"
+                  value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+              </div>
+              <div>
+                <label style={labelStyle}>Date</label>
+                <input type="date" style={inputStyle}
+                  value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
+              </div>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button type="button" onClick={() => setShowModal(false)} style={btnSecondary}>Cancel</button>
+                <button type="submit" disabled={saving} style={btnPrimary}>
+                  {saving ? <span className="spinner-border spinner-border-sm" /> : 'Add Transaction'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Toast */}
+      {/* Toast - FIXED: removed Tailwind */}
       {toast && (
-        <div className="toast-container-custom">
-          <div className="p-3 rounded-3" style={{ background: 'var(--navy-500)', border: '1px solid var(--cyan-500)', color: 'var(--text-primary)', minWidth: 200 }}>
-            <i className="bi bi-check-circle-fill me-2 text-cyan"></i>{toast}
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
+          <div style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-primary)', borderRadius: '0.75rem', padding: '0.75rem 1.25rem', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="bi bi-check-circle-fill" style={{ color: 'var(--color-primary)' }}></i>{toast}
           </div>
         </div>
       )}
     </div>
   )
 }
+
+const cardStyle = { background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '0.75rem', padding: '1.25rem' }
+const inputStyle = { width: '100%', padding: '0.7rem 0.9rem', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '0.5rem', color: 'var(--color-text-primary)', fontSize: '0.875rem', outline: 'none' }
+const labelStyle = { display: 'block', fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 6 }
+const tdStyle = { padding: '0.75rem 1rem', fontSize: '0.875rem', verticalAlign: 'middle' }
+const btnPrimary = { background: 'var(--color-primary)', border: 'none', borderRadius: '0.5rem', color: '#0a0e1a', fontWeight: 600, fontSize: '0.875rem', padding: '0.6rem 1.25rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }
+const btnSecondary = { background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)', borderRadius: '0.5rem', color: 'var(--color-text-muted)', fontWeight: 500, fontSize: '0.875rem', padding: '0.6rem 1.25rem', cursor: 'pointer' }

@@ -15,8 +15,8 @@ import Feedback from './pages/Feedback'
 function ProtectedRoute({ children, adminRequired = false }) {
   const { user, loading } = useAuth()
   if (loading) return (
-    <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-      <div className="spinner-border spinner-cyan" role="status" />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <div className="spinner-border" style={{ color: 'var(--color-primary)' }} role="status" />
     </div>
   )
   if (!user) return <Navigate to="/login" replace />
@@ -26,7 +26,7 @@ function ProtectedRoute({ children, adminRequired = false }) {
 
 function AppLayout({ children }) {
   return (
-    <div className="app-layout">
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
       <main className="main-content">{children}</main>
     </div>
@@ -37,34 +37,17 @@ function AppRoutes() {
   const { user } = useAuth()
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-      <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-
-      <Route path="/" element={
-        <ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/expenses" element={
-        <ProtectedRoute><AppLayout><ExpenseTracker /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/habits" element={
-        <ProtectedRoute><AppLayout><HabitTracker /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/goals" element={
-        <ProtectedRoute><AppLayout><SavingsGoals /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/analytics" element={
-        <ProtectedRoute><AppLayout><WealthAnalytics /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/profile" element={
-        <ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/feedback" element={
-        <ProtectedRoute><AppLayout><Feedback /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="/admin" element={
-        <ProtectedRoute adminRequired><AppLayout><AdminPanel /></AppLayout></ProtectedRoute>
-      } />
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
+      <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/expenses" element={<ProtectedRoute><AppLayout><ExpenseTracker /></AppLayout></ProtectedRoute>} />
+      <Route path="/habits" element={<ProtectedRoute><AppLayout><HabitTracker /></AppLayout></ProtectedRoute>} />
+      <Route path="/goals" element={<ProtectedRoute><AppLayout><SavingsGoals /></AppLayout></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><AppLayout><WealthAnalytics /></AppLayout></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+      <Route path="/feedback" element={<ProtectedRoute><AppLayout><Feedback /></AppLayout></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute adminRequired><AppLayout><AdminPanel /></AppLayout></ProtectedRoute>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
@@ -78,3 +61,4 @@ export default function App() {
     </AuthProvider>
   )
 }
+  
