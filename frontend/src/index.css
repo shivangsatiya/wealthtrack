@@ -127,3 +127,15 @@ tbody tr:nth-child(10) { animation-delay: 0.30s; }
   .sidebar { display: none; }
   .main-content { margin-left: 0; padding: 1rem; }
 }
+
+/* ── CHART COLOR FIXES ── */
+/* Make chart grid lines visible but subtle */
+.chart-grid-fix {
+  --chart-grid: rgba(255,255,255,0.06);
+  --chart-border: rgba(255,255,255,0.1);
+}
+
+/* Override Chart.js canvas background */
+canvas {
+  border-radius: 8px;
+}

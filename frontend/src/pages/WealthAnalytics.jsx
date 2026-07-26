@@ -55,14 +55,14 @@ export default function WealthAnalytics() {
   const snapshots = wealth?.netWorthSnapshots?.slice(-12) || []
   const netWorthChartData = {
     labels: snapshots.map((_, i) => `#${i + 1}`),
-    datasets: [{ label: 'Net Worth', data: snapshots.map(s => s.netWorth || 0), borderColor: 'var(--color-primary)', backgroundColor: 'rgba(6,182,212,0.08)', tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 }]
+    datasets: [{ label: 'Net Worth', data: snapshots.map(s => s.netWorth || 0), borderColor: 'var(--color-primary)', backgroundColor: 'rgba(6,182,212,0.12)', tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2 }]
   }
 
   const barData = {
     labels: MONTHS,
     datasets: [
-      { label: 'Income', data: MONTHS.map((_, i) => { const entry = summary.find(s => s._id?.month === i+1 && s._id?.type === 'income'); return entry?.total || 0 }), backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6 },
-      { label: 'Expenses', data: MONTHS.map((_, i) => { const entry = summary.find(s => s._id?.month === i+1 && s._id?.type === 'expense'); return entry?.total || 0 }), backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 6 }
+      { label: 'Income', data: MONTHS.map((_, i) => { const entry = summary.find(s => s._id?.month === i+1 && s._id?.type === 'income'); return entry?.total || 0 }), backgroundColor: 'rgba(16,185,129,0.85)', borderRadius: 6 },
+      { label: 'Expenses', data: MONTHS.map((_, i) => { const entry = summary.find(s => s._id?.month === i+1 && s._id?.type === 'expense'); return entry?.total || 0 }), backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 6 }
     ]
   }
 
@@ -75,10 +75,10 @@ export default function WealthAnalytics() {
 
   const chartOpts = () => ({
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: 'var(--color-text-muted)', font: { size: 12 }, boxWidth: 12 } } },
+    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 12 } } },
     scales: {
-      x: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 } }, grid: { color: 'var(--color-border-light)' } },
-      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'var(--color-border-light)' } }
+      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.08)' } }
     }
   })
 
@@ -139,9 +139,9 @@ export default function WealthAnalytics() {
 
       {activeTab === 'overview' && (
         <div className="row g-3">
-          <div className="col-lg-8"><div style={cardStyle}><h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Monthly Income vs Expenses ({new Date().getFullYear()})</h6><div style={{ height: 280 }}><Bar data={barData} options={chartOpts()} /></div></div></div>
-          <div className="col-lg-4"><div style={cardStyle}><h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Asset Allocation</h6>{Object.keys(assetGrouped).length > 0 ? <div style={{ height: 280 }}><Doughnut data={assetDoughnut} options={doughnutOpts} /></div> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 280, color: 'var(--color-text-muted)', flexDirection: 'column', gap: 8 }}><i className="bi bi-pie-chart" style={{ fontSize: '2rem' }}></i><span>No assets yet</span></div>}</div></div>
-          {snapshots.length > 1 && <div className="col-12"><div style={cardStyle}><h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Net Worth History</h6><div style={{ height: 240 }}><Line data={netWorthChartData} options={chartOpts()} /></div></div></div>}
+          <div className="col-lg-8"><div className="hover-card" style={cardStyle}><h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Monthly Income vs Expenses ({new Date().getFullYear()})</h6><div style={{ height: 280 }}><Bar data={barData} options={chartOpts()} /></div></div></div>
+          <div className="col-lg-4"><div className="hover-card" style={cardStyle}><h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Asset Allocation</h6>{Object.keys(assetGrouped).length > 0 ? <div style={{ height: 280 }}><Doughnut data={assetDoughnut} options={doughnutOpts} /></div> : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 280, color: 'var(--color-text-muted)', flexDirection: 'column', gap: 8 }}><i className="bi bi-pie-chart" style={{ fontSize: '2rem' }}></i><span>No assets yet</span></div>}</div></div>
+          {snapshots.length > 1 && <div className="col-12"><div className="hover-card" style={cardStyle}><h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Net Worth History</h6><div style={{ height: 240 }}><Line data={netWorthChartData} options={chartOpts()} /></div></div></div>}
         </div>
       )}
 

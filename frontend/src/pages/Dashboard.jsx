@@ -106,8 +106,8 @@ export default function Dashboard() {
   const lineData = {
     labels: MONTHS,
     datasets: [
-      { label: 'Income', data: monthlyData.map(m => m.income), borderColor: 'var(--color-primary)', backgroundColor: 'rgba(6,182,212,0.08)', tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 },
-      { label: 'Expenses', data: monthlyData.map(m => m.expense), borderColor: 'var(--color-danger)', backgroundColor: 'rgba(239,68,68,0.06)', tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 }
+      { label: 'Income', data: monthlyData.map(m => m.income), borderColor: 'var(--color-primary)', backgroundColor: 'rgba(6,182,212,0.12)', tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 },
+      { label: 'Expenses', data: monthlyData.map(m => m.expense), borderColor: 'var(--color-danger)', backgroundColor: 'rgba(239,68,68,0.1)', tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 }
     ]
   }
 
@@ -123,10 +123,10 @@ export default function Dashboard() {
 
   const chartOptions = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: 'var(--color-text-muted)', font: { size: 12 }, boxWidth: 12 } } },
+    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 12 } } },
     scales: {
-      x: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 } }, grid: { color: 'var(--color-border-light)' } },
-      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'var(--color-border-light)' } }
+      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.08)' } }
     }
   }
 

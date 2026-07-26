@@ -45,7 +45,7 @@ export default function Profile() {
       <div className="row g-4">
         {/* Avatar card */}
         <div className="col-md-4">
-          <div style={{ ...cardStyle, textAlign: 'center' }}>
+          <div className="hover-card" style={{ ...cardStyle, textAlign: 'center' }}>
             <div style={{
               width: 80, height: 80, borderRadius: '50%',
               background: 'rgba(6,182,212,0.1)',
@@ -85,7 +85,7 @@ export default function Profile() {
 
         {/* Edit form - FIXED: removed all Tailwind classes */}
         <div className="col-md-8">
-          <div style={cardStyle}>
+          <div className="hover-card" style={cardStyle}>
             <h6 style={{ fontWeight: 600, marginBottom: '1.25rem', color: 'var(--color-primary)' }}>
               <i className="bi bi-pencil-square me-2"></i>Edit Profile
             </h6>
@@ -140,7 +140,7 @@ export default function Profile() {
           </div>
 
           {/* Security section */}
-          <div style={{ ...cardStyle, marginTop: '1rem' }}>
+          <div className="hover-card" style={{ ...cardStyle, marginTop: '1rem' }}>
             <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>
               <i className="bi bi-shield-lock me-2" style={{ color: 'var(--color-primary)' }}></i>Account Security
             </h6>

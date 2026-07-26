@@ -115,7 +115,7 @@ export default function HabitTracker() {
           { label: 'Active Streaks', value: activeStreaks, icon: 'bi-graph-up-arrow', color: 'var(--color-primary)' },
         ].map((s, i) => (
           <div className="col-4" key={i}>
-            <div style={{ ...cardStyle, textAlign: 'center' }}>
+            <div className="hover-card" style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.3rem', color: s.color }}></i>
               <div style={{ fontSize: '1.4rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
@@ -152,7 +152,7 @@ export default function HabitTracker() {
 
             return (
               <div className="col-md-6 col-lg-4" key={habit._id}>
-                <div style={{
+                <div className={done ? 'hover-card-green' : 'hover-card'} style={{
                   ...cardStyle,
                   borderColor: done ? 'var(--color-secondary)' : 'var(--color-border)',
                   background: done ? 'rgba(16,185,129,0.04)' : 'var(--color-bg-card)',

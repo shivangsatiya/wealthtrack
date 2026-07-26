@@ -61,7 +61,7 @@ export default function AdminPanel() {
           { label: 'Goals Completed', value: stats?.completedGoals, icon: 'bi-trophy-fill', color: 'var(--color-secondary)' },
         ].map((s, i) => (
           <div className="col-6 col-lg-4 col-xl-2" key={i}>
-            <div style={{ ...cardStyle, textAlign: 'center' }}>
+            <div className="hover-card" style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.3rem', color: s.color }}></i>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value ?? '—'}</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
@@ -90,7 +90,7 @@ export default function AdminPanel() {
         <div className="row g-3">
           {/* FIXED: replaced card-dark with inline cardStyle, fixed --text-muted/--border-color/--navy-500/--cyan-500 */}
           <div className="col-lg-6">
-            <div style={cardStyle}>
+            <div className="hover-card" style={cardStyle}>
               <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Recent Registrations</h6>
               {stats?.recentUsers?.length === 0 ? (
                 <p style={{ color: 'var(--color-text-muted)' }}>No users yet</p>
@@ -116,7 +116,7 @@ export default function AdminPanel() {
           </div>
 
           <div className="col-lg-6">
-            <div style={cardStyle}>
+            <div className="hover-card" style={cardStyle}>
               <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Platform KPIs</h6>
               {[
                 { label: 'Goal Completion Rate', value: stats?.totalGoals ? `${Math.round((stats.completedGoals / stats.totalGoals) * 100)}%` : 'N/A', icon: 'bi-bullseye', color: 'var(--color-accent)' },

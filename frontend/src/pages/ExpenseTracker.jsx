@@ -1,9 +1,54 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import axios from 'axios'
 import { API } from '../context/AuthContext'
 
 const EXPENSE_CATS = ['Food & Dining','Transport','Rent & Housing','Entertainment','Shopping','Healthcare','Education','Utilities','Personal Care','Other Expense']
 const INCOME_CATS = ['Salary','Freelance','Investment Returns','Business','Gift','Other Income']
+
+function useCountUp(target, duration = 1200) {
+  const [count, setCount] = useState(0)
+  const raf = useRef(null)
+  useEffect(() => {
+    if (!target) return
+    let start = null
+    const step = (timestamp) => {
+      if (!start) start = timestamp
+      const progress = Math.min((timestamp - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(ease * target))
+      if (progress < 1) raf.current = requestAnimationFrame(step)
+    }
+    raf.current = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf.current)
+  }, [target, duration])
+  return count
+}
+
+function SummaryCard({ label, value, color, icon }) {
+  const count = useCountUp(value)
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div className="col-4">
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          ...cardStyle,
+          textAlign: 'center',
+          borderColor: hovered ? color : 'var(--color-border)',
+          boxShadow: hovered ? `0 0 20px ${color}20` : 'none',
+          transition: 'all 0.3s'
+        }}
+      >
+        <i className={`bi ${icon}`} style={{ fontSize: '1.4rem', color, transform: hovered ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.3s', display: 'block' }}></i>
+        <div style={{ fontSize: '1.2rem', fontWeight: 700, color, marginTop: 6, textShadow: hovered ? `0 0 16px ${color}50` : 'none', transition: 'all 0.3s' }}>
+          ₹{count.toLocaleString('en-IN')}
+        </div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{label}</div>
+      </div>
+    </div>
+  )
+}
 
 export default function ExpenseTracker() {
   const [transactions, setTransactions] = useState([])
@@ -26,7 +71,7 @@ export default function ExpenseTracker() {
       const res = await axios.get(`${API}/transactions?${params}`)
       setTransactions(res.data)
     } catch (err) {
-      console.error('Error fetching transactions:', err)
+      console.error(err)
     } finally { setLoading(false) }
   }, [filters])
 
@@ -35,17 +80,15 @@ export default function ExpenseTracker() {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
   const handleAdd = async (e) => {
-    e.preventDefault()
-    setSaving(true)
+    e.preventDefault(); setSaving(true)
     try {
       await axios.post(`${API}/transactions`, form)
       showToast('Transaction added!')
       setShowModal(false)
       setForm({ type: 'expense', amount: '', category: '', description: '', date: new Date().toISOString().split('T')[0] })
       fetchTx()
-    } catch (err) {
-      showToast(err.response?.data?.message || 'Error adding transaction')
-    } finally { setSaving(false) }
+    } catch (err) { showToast(err.response?.data?.message || 'Error') }
+    finally { setSaving(false) }
   }
 
   const handleDelete = async (id) => {
@@ -53,20 +96,17 @@ export default function ExpenseTracker() {
     try {
       await axios.delete(`${API}/transactions/${id}`)
       setTransactions(t => t.filter(x => x._id !== id))
-      showToast('Transaction deleted')
-    } catch (err) {
-      showToast(err.response?.data?.message || 'Error deleting transaction')
-    }
+      showToast('Deleted')
+    } catch (err) { showToast(err.response?.data?.message || 'Error') }
   }
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-  const fmt = n => `₹${Number(n).toLocaleString('en-IN')}`
+  const balance = totalIncome - totalExpense
   const categories = form.type === 'expense' ? EXPENSE_CATS : INCOME_CATS
 
   return (
     <div>
-      {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Expense Tracker</h1>
@@ -77,25 +117,12 @@ export default function ExpenseTracker() {
         </button>
       </div>
 
-      {/* Summary cards - FIXED: removed Tailwind, fixed broken {s.color} string interpolation bug */}
       <div className="row g-3 mb-4">
-        {[
-          { label: 'Income', value: fmt(totalIncome), color: 'var(--color-primary)', icon: 'bi-arrow-down-circle' },
-          { label: 'Expenses', value: fmt(totalExpense), color: 'var(--color-danger)', icon: 'bi-arrow-up-circle' },
-          { label: 'Balance', value: fmt(totalIncome - totalExpense), color: totalIncome >= totalExpense ? 'var(--color-secondary)' : 'var(--color-danger)', icon: 'bi-wallet2' },
-        ].map((s, i) => (
-          <div className="col-4" key={i}>
-            <div style={{ ...cardStyle, textAlign: 'center' }}>
-              <i className={`bi ${s.icon}`} style={{ fontSize: '1.4rem', color: s.color }}></i>
-              {/* FIXED: was className="text-xl font-bold mt-2 {s.color}" — literal string, not interpolated */}
-              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
-            </div>
-          </div>
-        ))}
+        <SummaryCard label="Income" value={totalIncome} color="var(--color-primary)" icon="bi-arrow-down-circle" />
+        <SummaryCard label="Expenses" value={totalExpense} color="var(--color-danger)" icon="bi-arrow-up-circle" />
+        <SummaryCard label="Balance" value={Math.abs(balance)} color={balance >= 0 ? 'var(--color-secondary)' : 'var(--color-danger)'} icon="bi-wallet2" />
       </div>
 
-      {/* Filters - FIXED: removed Tailwind */}
       <div style={{ ...cardStyle, marginBottom: '1rem' }}>
         <div className="row g-2 align-items-end">
           <div className="col-6 col-md-3">
@@ -132,7 +159,6 @@ export default function ExpenseTracker() {
         </div>
       </div>
 
-      {/* Table - FIXED: removed Tailwind, fixed spinner */}
       <div style={cardStyle}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '3rem' }}>
@@ -168,7 +194,7 @@ export default function ExpenseTracker() {
                     <td style={tdStyle}>{tx.category}</td>
                     <td style={{ ...tdStyle, color: 'var(--color-text-muted)' }}>{tx.description || '—'}</td>
                     <td style={{ ...tdStyle, fontWeight: 600, color: tx.type === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)' }}>
-                      {tx.type === 'income' ? '+' : '-'}{fmt(tx.amount)}
+                      {tx.type === 'income' ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN')}
                     </td>
                     <td style={tdStyle}>
                       <button onClick={() => handleDelete(tx._id)}
@@ -184,7 +210,6 @@ export default function ExpenseTracker() {
         )}
       </div>
 
-      {/* Modal - FIXED: removed Tailwind */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div style={{ ...cardStyle, width: '100%', maxWidth: 480 }}>
@@ -201,12 +226,7 @@ export default function ExpenseTracker() {
                   {['expense','income'].map(t => (
                     <button key={t} type="button"
                       onClick={() => setForm({ ...form, type: t, category: '' })}
-                      style={{
-                        flex: 1, padding: '0.6rem', borderRadius: '0.5rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
-                        background: form.type === t ? (t === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') : 'var(--color-bg-secondary)',
-                        border: `1px solid ${form.type === t ? (t === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)') : 'var(--color-border)'}`,
-                        color: form.type === t ? (t === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)') : 'var(--color-text-muted)'
-                      }}>
+                      style={{ flex: 1, padding: '0.6rem', borderRadius: '0.5rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', background: form.type === t ? (t === 'income' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)') : 'var(--color-bg-secondary)', border: `1px solid ${form.type === t ? (t === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)') : 'var(--color-border)'}`, color: form.type === t ? (t === 'income' ? 'var(--color-secondary)' : 'var(--color-danger)') : 'var(--color-text-muted)' }}>
                       {t === 'income' ? '↓ Income' : '↑ Expense'}
                     </button>
                   ))}
@@ -219,8 +239,7 @@ export default function ExpenseTracker() {
               </div>
               <div>
                 <label style={labelStyle}>Category</label>
-                <select style={inputStyle} value={form.category}
-                  onChange={e => setForm({ ...form, category: e.target.value })} required>
+                <select style={inputStyle} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} required>
                   <option value="">Select category</option>
                   {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -246,7 +265,6 @@ export default function ExpenseTracker() {
         </div>
       )}
 
-      {/* Toast - FIXED: removed Tailwind */}
       {toast && (
         <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
           <div style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-primary)', borderRadius: '0.75rem', padding: '0.75rem 1.25rem', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>

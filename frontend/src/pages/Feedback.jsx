@@ -61,7 +61,7 @@ export default function Feedback() {
       <div className="row g-4">
         {/* Submit form */}
         <div className="col-lg-5">
-          <div style={cardStyle}>
+          <div className="hover-card" style={cardStyle}>
             <h6 style={{ fontWeight: 600, marginBottom: '1.25rem' }}>
               <i className="bi bi-chat-square-text-fill me-2" style={{ color: 'var(--color-primary)' }}></i>Send us a message
             </h6>
@@ -108,7 +108,7 @@ export default function Feedback() {
 
         {/* My submissions */}
         <div className="col-lg-7">
-          <div style={cardStyle}>
+          <div className="hover-card" style={cardStyle}>
             <h6 style={{ fontWeight: 600, marginBottom: '1.25rem' }}>
               <i className="bi bi-clock-history me-2" style={{ color: 'var(--color-primary)' }}></i>Your Submissions
             </h6>

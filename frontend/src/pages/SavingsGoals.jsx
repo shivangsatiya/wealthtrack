@@ -92,7 +92,7 @@ export default function SavingsGoals() {
           { label: 'Goals Completed', value: completed, icon: 'bi-trophy-fill', color: 'var(--color-accent)' },
         ].map((s, i) => (
           <div className="col-4" key={i}>
-            <div style={{ ...cardStyle, textAlign: 'center' }}>
+            <div className="hover-card" style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.3rem', color: s.color }}></i>
               <div style={{ fontSize: '1.2rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
@@ -115,7 +115,7 @@ export default function SavingsGoals() {
             const daysLeft = goal.deadline ? Math.ceil((new Date(goal.deadline) - new Date()) / 86400000) : null
             return (
               <div className="col-md-6" key={goal._id}>
-                <div style={{
+                <div className={goal.isCompleted ? 'hover-card-green' : 'hover-card'} style={{
                   ...cardStyle,
                   borderColor: goal.isCompleted ? 'var(--color-secondary)' : 'var(--color-border)',
                   transition: 'all 0.3s'
