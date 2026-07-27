@@ -171,7 +171,7 @@ export default function Dashboard() {
       {/* Charts - FIXED: Bootstrap grid, restored Doughnut component */}
       <div className="row g-3 mb-4">
         <div className="col-lg-8">
-          <div style={cardStyle}>
+          <div className="hover-card" style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h6 style={{ fontWeight: 600, margin: 0 }}>Income vs Expenses</h6>
               <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{new Date().getFullYear()}</span>
@@ -180,7 +180,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="col-lg-4">
-          <div style={{ ...cardStyle, height: '100%' }}>
+          <div className="hover-card" style={{ ...cardStyle, height: '100%' }}>
             <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Expense Breakdown</h6>
             {/* FIXED: was empty div, now renders actual Doughnut chart */}
             {breakdown.length > 0 ? (
@@ -198,7 +198,7 @@ export default function Dashboard() {
       {/* Bottom row */}
       <div className="row g-3">
         <div className="col-lg-6">
-          <div style={cardStyle}>
+          <div className="hover-card" style={cardStyle}>
             <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Recent Transactions</h6>
             {recentTx.length === 0 ? (
               <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>No transactions yet</p>
@@ -216,7 +216,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="col-lg-6">
-          <div style={cardStyle}>
+          <div className="hover-card" style={cardStyle}>
             <h6 style={{ fontWeight: 600, marginBottom: '1rem' }}>Savings Goals</h6>
             {goals.length === 0 ? (
               <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>No goals set yet</p>
