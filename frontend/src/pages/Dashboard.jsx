@@ -168,15 +168,15 @@ export default function Dashboard() {
       }
     },
     scales: {
-      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
-      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.06)' } }
+      x: { ticks: { color: '#cbd5e1', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+      y: { ticks: { color: '#cbd5e1', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.06)' } }
     }
   }
 
   const doughnutOptions = {
     responsive: true, maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'right', labels: { color: 'var(--color-text-muted)', font: { size: 11 }, boxWidth: 10, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+      legend: { position: 'right', labels: { color: '#e2e8f0', font: { size: 12, weight: 500 }, boxWidth: 10, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
       tooltip: {
         backgroundColor: 'rgba(10,14,26,0.95)', titleColor: '#f0f4f8', bodyColor: '#cbd5e1',
         borderColor: 'rgba(6,182,212,0.35)', borderWidth: 1, padding: 10, cornerRadius: 8,

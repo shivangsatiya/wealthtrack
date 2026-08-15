@@ -111,14 +111,14 @@ export default function WealthAnalytics() {
 
   const chartOpts = () => ({
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 12 } } },
+    plugins: { legend: { labels: { color: '#e2e8f0', font: { size: 12, weight: 500 }, boxWidth: 12, usePointStyle: true, pointStyle: 'circle' } } },
     scales: {
-      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.08)' } },
-      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.08)' } }
+      x: { ticks: { color: '#cbd5e1', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      y: { ticks: { color: '#cbd5e1', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.08)' } }
     }
   })
 
-  const doughnutOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: 'var(--color-text-muted)', font: { size: 11 }, boxWidth: 10, padding: 8 } } }, cutout: '65%' }
+  const doughnutOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#e2e8f0', font: { size: 12, weight: 500 }, boxWidth: 10, padding: 8, usePointStyle: true, pointStyle: 'circle' } } }, cutout: '65%' }
 
   const handleAddAsset = async (e) => {
     e.preventDefault(); setSaving(true)
