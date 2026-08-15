@@ -45,11 +45,11 @@ function WealthMetric({ label, value, color, large }) {
     >
       <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: large ? 8 : 4 }}>{label}</div>
       {large ? (
-        <div style={{ fontSize: '2.5rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--color-primary), #67e8f9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'netWorthPulse 3s ease-in-out infinite' }}>
+        <div style={{ fontSize: '2.5rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--color-primary), #67e8f9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'netWorthPulse 3s ease-in-out infinite', overflowWrap: 'break-word' }}>
           {sign}₹{count.toLocaleString('en-IN')}
         </div>
       ) : (
-        <div style={{ fontSize: '1.5rem', fontWeight: 700, color, textShadow: hovered ? `0 0 16px ${color}50` : 'none', transition: 'text-shadow 0.3s' }}>
+        <div style={{ fontSize: '1.5rem', fontWeight: 700, color, textShadow: hovered ? `0 0 16px ${color}50` : 'none', transition: 'text-shadow 0.3s', overflowWrap: 'break-word' }}>
           {sign}₹{count.toLocaleString('en-IN')}
         </div>
       )}
@@ -164,7 +164,7 @@ export default function WealthAnalytics() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {['overview','assets','liabilities'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: '6px 18px', borderRadius: 8, fontWeight: activeTab === tab ? 600 : 400, background: activeTab === tab ? 'rgba(6,182,212,0.12)' : 'var(--color-bg-secondary)', border: `1px solid ${activeTab === tab ? 'var(--color-primary)' : 'var(--color-border)'}`, color: activeTab === tab ? 'var(--color-primary)' : 'var(--color-text-muted)', cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.2s' }}>{tab}</button>
         ))}

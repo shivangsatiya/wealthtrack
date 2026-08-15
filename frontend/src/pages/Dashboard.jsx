@@ -36,7 +36,7 @@ function StatCard({ label, value, color, icon, sub, habits }) {
           <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
           <i className={`bi ${icon}`} style={{ color, fontSize: '1.2rem', transform: hovered ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.3s' }}></i>
         </div>
-        <div style={{ fontSize: '1.4rem', fontWeight: 700, color, transition: 'all 0.3s', textShadow: hovered ? `0 0 16px ${color}50` : 'none' }}>
+        <div style={{ fontSize: '1.4rem', fontWeight: 700, color, transition: 'all 0.3s', textShadow: hovered ? `0 0 16px ${color}50` : 'none', overflowWrap: 'break-word' }}>
           {habits ? habits : `₹${count.toLocaleString('en-IN')}`}
         </div>
         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: 4 }}>{sub}</div>
@@ -198,7 +198,7 @@ export default function Dashboard() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div className="page-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 4 }}>
             Good {getGreeting()}, {user?.name?.split(' ')[0]} 👋

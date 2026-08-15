@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0a0e1a"/>
+    </linearGradient>
+    <linearGradient id="line" x1="4" y1="24" x2="26" y2="8" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+
+  <!-- rounded square background, matching the card style used throughout the UI -->
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="url(#bg)" stroke="#06b6d4" stroke-opacity="0.35"/>
+
+  <!-- soft area fill under the growth line, same motif as the dashboard's Income chart -->
+  <path d="M6 22 L12 17 L17 19.5 L26 8 L26 25 L6 25 Z" fill="#06b6d4" fill-opacity="0.16"/>
+
+  <!-- ascending "wealth growth" line -->
+  <path d="M6 22 L12 17 L17 19.5 L26 8" fill="none" stroke="url(#line)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- data points, echoing the pointBackgroundColor styling on the real charts -->
+  <circle cx="6" cy="22" r="1.8" fill="#0a0e1a" stroke="#06b6d4" stroke-width="1.6"/>
+  <circle cx="12" cy="17" r="1.8" fill="#0a0e1a" stroke="#06b6d4" stroke-width="1.6"/>
+  <circle cx="17" cy="19.5" r="1.8" fill="#0a0e1a" stroke="#f59e0b" stroke-width="1.6"/>
+  <circle cx="26" cy="8" r="2.2" fill="#34d399" stroke="#0a0e1a" stroke-width="1.4"/>
+</svg>

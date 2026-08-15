@@ -263,11 +263,17 @@ canvas { border-radius: 8px; }
   /* Hide overflow columns in table on very small screens */
   .hide-mobile { display: none !important; }
 
-  /* Page header stack on mobile */
+  /* Page header stack on mobile — title/subtitle above, action button below,
+     full-width for an easier tap target instead of squeezing into a corner */
   .page-header-row {
     flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.5rem;
+    align-items: stretch !important;
+    gap: 0.75rem;
+  }
+  .page-header-row > button,
+  .page-header-row > a {
+    width: 100%;
+    justify-content: center;
   }
 
   /* Modals full screen on mobile */
@@ -281,7 +287,7 @@ canvas { border-radius: 8px; }
   }
 
   /* Modal overlay padding on mobile */
-  div[style*="padding: '1rem'"] {
+  div[style*="padding: 1rem"] {
     padding: 0.5rem !important;
   }
 
@@ -289,15 +295,15 @@ canvas { border-radius: 8px; }
   .d-none.d-lg-flex { display: none !important; }
 
   /* Net worth number smaller */
-  div[style*="font-size: '2.5rem'"] {
+  div[style*="font-size: 2.5rem"] {
     font-size: 1.8rem !important;
   }
 
   /* Doughnut legend bottom on mobile */
   .col-lg-4 canvas { max-height: 160px; }
 
-  /* Tab buttons wrap */
-  div[style*="display: 'flex', gap: 8"] {
+  /* Tab buttons wrap instead of squeezing their labels onto two lines */
+  div[style*="display: flex"][style*="gap: 8px"] {
     flex-wrap: wrap;
   }
 
@@ -314,7 +320,7 @@ canvas { border-radius: 8px; }
 
   /* Toast positioning */
   .toast-container-custom,
-  div[style*="bottom: '1.5rem'"] {
+  div[style*="bottom: 1.5rem"] {
     bottom: 1rem !important;
     right: 1rem !important;
     left: 1rem !important;
@@ -323,18 +329,5 @@ canvas { border-radius: 8px; }
 
 /* ── VERY SMALL SCREENS (max 400px) ── */
 @media (max-width: 400px) {
-  .col-4 {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 0 0 100% !important;
-  }
-
-  .col-lg-3,
-  .col-xl-2 {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 0 0 100% !important;
-  }
-
   .main-content { padding: 0.75rem; padding-top: 3.5rem; }
 }

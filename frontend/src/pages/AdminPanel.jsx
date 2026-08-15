@@ -63,7 +63,7 @@ export default function AdminPanel() {
           <div className="col-6 col-lg-4 col-xl-2" key={i}>
             <div className="hover-card" style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.3rem', color: s.color }}></i>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value ?? '—'}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: s.color, marginTop: 6, overflowWrap: 'break-word' }}>{s.value ?? '—'}</div>
               <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function AdminPanel() {
       </div>
 
       {/* FIXED: replaced --cyan-500/--navy-600/--border-color/--text-secondary with new vars */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {['overview','users','feedback'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)} style={{
             padding: '6px 18px', borderRadius: 8,

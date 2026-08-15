@@ -74,7 +74,7 @@ export default function SavingsGoals() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div className="page-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Savings Goals</h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>Set targets and track your progress</p>
@@ -94,7 +94,7 @@ export default function SavingsGoals() {
           <div className="col-4" key={i}>
             <div className="hover-card" style={{ ...cardStyle, textAlign: 'center' }}>
               <i className={`bi ${s.icon}`} style={{ fontSize: '1.3rem', color: s.color }}></i>
-              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: s.color, marginTop: 6 }}>{s.value}</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: s.color, marginTop: 6, overflowWrap: 'break-word' }}>{s.value}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{s.label}</div>
             </div>
           </div>

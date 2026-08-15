@@ -24,7 +24,7 @@ function SummaryCard({ label, value, color, icon }) {
         }}
       >
         <i className={`bi ${icon}`} style={{ fontSize: '1.4rem', color, transform: hovered ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.3s', display: 'block' }}></i>
-        <div style={{ fontSize: '1.2rem', fontWeight: 700, color, marginTop: 6, textShadow: hovered ? `0 0 16px ${color}50` : 'none', transition: 'all 0.3s' }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: 700, color, marginTop: 6, textShadow: hovered ? `0 0 16px ${color}50` : 'none', transition: 'all 0.3s', overflowWrap: 'break-word' }}>
           ₹{count.toLocaleString('en-IN')}
         </div>
         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{label}</div>
@@ -90,7 +90,7 @@ export default function ExpenseTracker() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div className="page-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Expense Tracker</h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>Track your income and expenses</p>
