@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler } from 'chart.js'
 import { API } from '../context/AuthContext'
+import useCountUp from '../hooks/useCountUp'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler)
 
@@ -20,6 +21,41 @@ const btnSecondary = { background: 'var(--color-bg-secondary)', border: '1px sol
 const modalOverlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }
 const modalHeader = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }
 const closeBtn = { background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '1.1rem' }
+
+// Animated, hoverable metric tile — mirrors the StatCard/SummaryCard pattern
+// used on Dashboard and Expense Tracker (count-up number + lift-and-glow on hover).
+function WealthMetric({ label, value, color, large }) {
+  const count = useCountUp(Math.abs(value || 0))
+  const [hovered, setHovered] = useState(false)
+  const sign = value < 0 ? '-' : ''
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'inline-block',
+        borderRadius: '0.75rem',
+        padding: '0.4rem 0.9rem',
+        transition: 'box-shadow 0.3s, transform 0.25s',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+        boxShadow: hovered ? `0 0 26px ${color}30, 0 6px 22px rgba(0,0,0,0.3)` : 'none',
+        cursor: 'default'
+      }}
+    >
+      <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: large ? 8 : 4 }}>{label}</div>
+      {large ? (
+        <div style={{ fontSize: '2.5rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--color-primary), #67e8f9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'netWorthPulse 3s ease-in-out infinite' }}>
+          {sign}₹{count.toLocaleString('en-IN')}
+        </div>
+      ) : (
+        <div style={{ fontSize: '1.5rem', fontWeight: 700, color, textShadow: hovered ? `0 0 16px ${color}50` : 'none', transition: 'text-shadow 0.3s' }}>
+          {sign}₹{count.toLocaleString('en-IN')}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function WealthAnalytics() {
   const [wealth, setWealth] = useState(null)
@@ -113,20 +149,17 @@ export default function WealthAnalytics() {
       <div style={{ ...cardStyle, background: 'linear-gradient(135deg, rgba(6,182,212,0.06), var(--color-bg-card))', borderColor: 'rgba(6,182,212,0.2)', marginBottom: '1.5rem' }}>
         <div className="row align-items-center">
           <div className="col-md-4 text-center text-md-start mb-3 mb-md-0">
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Net Worth</div>
-            <div style={{ fontSize: '2.5rem', fontWeight: 800, background: 'linear-gradient(135deg, var(--color-primary), #67e8f9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'netWorthPulse 3s ease-in-out infinite' }}>{fmt(netWorth)}</div>
+            <WealthMetric label="Net Worth" value={netWorth} color="var(--color-primary)" large />
             <div style={{ color: netWorth >= 0 ? 'var(--color-secondary)' : 'var(--color-danger)', fontSize: '0.85rem', marginTop: 6 }}>
               <i className={`bi bi-arrow-${netWorth >= 0 ? 'up' : 'down'}-circle me-1`}></i>
               {netWorth >= 0 ? 'Positive net worth' : 'Liabilities exceed assets'}
             </div>
           </div>
           <div className="col-md-4 text-center mb-3 mb-md-0">
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: 4 }}>Total Assets</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-secondary)' }}>{fmt(totalAssets)}</div>
+            <WealthMetric label="Total Assets" value={totalAssets} color="var(--color-secondary)" />
           </div>
           <div className="col-md-4 text-center">
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: 4 }}>Total Liabilities</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-danger)' }}>{fmt(totalLiabilities)}</div>
+            <WealthMetric label="Total Liabilities" value={totalLiabilities} color="var(--color-danger)" />
           </div>
         </div>
       </div>

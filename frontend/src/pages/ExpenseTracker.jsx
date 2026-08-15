@@ -1,28 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { API } from '../context/AuthContext'
+import useCountUp from '../hooks/useCountUp'
 
 const EXPENSE_CATS = ['Food & Dining','Transport','Rent & Housing','Entertainment','Shopping','Healthcare','Education','Utilities','Personal Care','Other Expense']
 const INCOME_CATS = ['Salary','Freelance','Investment Returns','Business','Gift','Other Income']
-
-function useCountUp(target, duration = 1200) {
-  const [count, setCount] = useState(0)
-  const raf = useRef(null)
-  useEffect(() => {
-    if (!target) return
-    let start = null
-    const step = (timestamp) => {
-      if (!start) start = timestamp
-      const progress = Math.min((timestamp - start) / duration, 1)
-      const ease = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.floor(ease * target))
-      if (progress < 1) raf.current = requestAnimationFrame(step)
-    }
-    raf.current = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf.current)
-  }, [target, duration])
-  return count
-}
 
 function SummaryCard({ label, value, color, icon }) {
   const count = useCountUp(value)
@@ -36,8 +18,9 @@ function SummaryCard({ label, value, color, icon }) {
           ...cardStyle,
           textAlign: 'center',
           borderColor: hovered ? color : 'var(--color-border)',
-          boxShadow: hovered ? `0 0 20px ${color}20` : 'none',
-          transition: 'all 0.3s'
+          boxShadow: hovered ? `0 0 28px ${color}30, 0 6px 24px rgba(0,0,0,0.35)` : 'none',
+          transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+          transition: 'border-color 0.3s, box-shadow 0.3s, transform 0.25s'
         }}
       >
         <i className={`bi ${icon}`} style={{ fontSize: '1.4rem', color, transform: hovered ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.3s', display: 'block' }}></i>

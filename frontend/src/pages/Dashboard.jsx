@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Line, Doughnut } from 'react-chartjs-2'
 import {
@@ -6,29 +6,11 @@ import {
   LineElement, ArcElement, Tooltip, Legend, Filler
 } from 'chart.js'
 import { useAuth, API } from '../context/AuthContext'
+import useCountUp from '../hooks/useCountUp'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-
-function useCountUp(target, duration = 1500) {
-  const [count, setCount] = useState(0)
-  const raf = useRef(null)
-  useEffect(() => {
-    if (!target) return
-    let start = null
-    const step = (timestamp) => {
-      if (!start) start = timestamp
-      const progress = Math.min((timestamp - start) / duration, 1)
-      const ease = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.floor(ease * target))
-      if (progress < 1) raf.current = requestAnimationFrame(step)
-    }
-    raf.current = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(raf.current)
-  }, [target, duration])
-  return count
-}
 
 // FIXED: replaced Tailwind classes with inline styles
 function StatCard({ label, value, color, icon, sub, habits }) {
@@ -44,8 +26,9 @@ function StatCard({ label, value, color, icon, sub, habits }) {
           background: 'var(--color-bg-card)',
           border: `1px solid ${hovered ? color : 'var(--color-border)'}`,
           borderRadius: '0.75rem', padding: '1.25rem',
-          transition: 'all 0.3s',
-          boxShadow: hovered ? `0 0 20px ${color}20` : 'none',
+          transition: 'border-color 0.3s, box-shadow 0.3s, transform 0.25s',
+          boxShadow: hovered ? `0 0 28px ${color}30, 0 6px 24px rgba(0,0,0,0.35)` : 'none',
+          transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
           cursor: 'default', height: '100%'
         }}
       >
@@ -103,36 +86,103 @@ export default function Dashboard() {
     })
   }).length
 
+  // Scriptable gradients — Chart.js hands us the live canvas context so the
+  // fill/stroke are built once the chart area is measured, not baked as flat colors.
+  const incomeAreaFill = (ctx) => {
+    const { chartArea, ctx: c } = ctx.chart
+    if (!chartArea) return 'rgba(6,182,212,0.15)'
+    const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
+    g.addColorStop(0, 'rgba(6,182,212,0.42)')
+    g.addColorStop(1, 'rgba(6,182,212,0.02)')
+    return g
+  }
+  const incomeLineStroke = (ctx) => {
+    const { chartArea, ctx: c } = ctx.chart
+    if (!chartArea) return '#06b6d4'
+    const g = c.createLinearGradient(chartArea.left, 0, chartArea.right, 0)
+    g.addColorStop(0, '#06b6d4')
+    g.addColorStop(1, '#34d399')
+    return g
+  }
+  const expenseAreaFill = (ctx) => {
+    const { chartArea, ctx: c } = ctx.chart
+    if (!chartArea) return 'rgba(239,68,68,0.12)'
+    const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
+    g.addColorStop(0, 'rgba(239,68,68,0.35)')
+    g.addColorStop(1, 'rgba(239,68,68,0.02)')
+    return g
+  }
+  const expenseLineStroke = (ctx) => {
+    const { chartArea, ctx: c } = ctx.chart
+    if (!chartArea) return '#ef4444'
+    const g = c.createLinearGradient(chartArea.left, 0, chartArea.right, 0)
+    g.addColorStop(0, '#f97316')
+    g.addColorStop(1, '#ef4444')
+    return g
+  }
+
   const lineData = {
     labels: MONTHS,
     datasets: [
-      { label: 'Income', data: monthlyData.map(m => m.income), borderColor: 'var(--color-primary)', backgroundColor: 'rgba(6,182,212,0.12)', tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 },
-      { label: 'Expenses', data: monthlyData.map(m => m.expense), borderColor: 'var(--color-danger)', backgroundColor: 'rgba(239,68,68,0.1)', tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 }
+      {
+        label: 'Income', data: monthlyData.map(m => m.income),
+        borderColor: incomeLineStroke, backgroundColor: incomeAreaFill,
+        tension: 0.4, fill: true, borderWidth: 3,
+        pointRadius: 3, pointHoverRadius: 7,
+        pointBackgroundColor: '#06b6d4', pointBorderColor: '#0a0e1a', pointBorderWidth: 2,
+        pointHoverBackgroundColor: '#67e8f9', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+      },
+      {
+        label: 'Expenses', data: monthlyData.map(m => m.expense),
+        borderColor: expenseLineStroke, backgroundColor: expenseAreaFill,
+        tension: 0.4, fill: true, borderWidth: 3,
+        pointRadius: 3, pointHoverRadius: 7,
+        pointBackgroundColor: '#ef4444', pointBorderColor: '#0a0e1a', pointBorderWidth: 2,
+        pointHoverBackgroundColor: '#fca5a5', pointHoverBorderColor: '#fff', pointHoverBorderWidth: 2
+      }
     ]
   }
 
   // FIXED: replaced undefined CSS vars with real hex values
+  const DOUGHNUT_PALETTE = ['#06b6d4','#34d399','#f59e0b','#a78bfa','#f43f5e','#fb923c']
   const doughnutData = {
     labels: breakdown.slice(0,6).map(b => b._id),
     datasets: [{
       data: breakdown.slice(0,6).map(b => b.total),
-      backgroundColor: ['#06b6d4','#10b981','#f59e0b','#8b5cf6','#ef4444','#f97316'],
-      borderColor: 'var(--color-bg-secondary)', borderWidth: 2
+      backgroundColor: DOUGHNUT_PALETTE,
+      hoverBackgroundColor: DOUGHNUT_PALETTE,
+      borderColor: 'var(--color-bg-card)', borderWidth: 3,
+      hoverBorderColor: '#f0f4f8', hoverBorderWidth: 2, hoverOffset: 10
     }]
   }
 
   const chartOptions = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 12 } } },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 12, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: {
+        backgroundColor: 'rgba(10,14,26,0.95)', titleColor: '#f0f4f8', bodyColor: '#cbd5e1',
+        borderColor: 'rgba(6,182,212,0.35)', borderWidth: 1, padding: 10, cornerRadius: 8, boxPadding: 4,
+        callbacks: { label: (c) => ` ${c.dataset.label}: ₹${c.parsed.y.toLocaleString('en-IN')}` }
+      }
+    },
     scales: {
-      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.08)' } },
-      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.08)' } }
+      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+      y: { ticks: { color: 'var(--color-text-muted)', font: { size: 11 }, callback: v => `₹${(v/1000).toFixed(0)}k` }, grid: { color: 'rgba(255,255,255,0.06)' } }
     }
   }
 
   const doughnutOptions = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { position: 'right', labels: { color: 'var(--color-text-muted)', font: { size: 11 }, boxWidth: 10, padding: 10 } } },
+    plugins: {
+      legend: { position: 'right', labels: { color: 'var(--color-text-muted)', font: { size: 11 }, boxWidth: 10, padding: 10, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: {
+        backgroundColor: 'rgba(10,14,26,0.95)', titleColor: '#f0f4f8', bodyColor: '#cbd5e1',
+        borderColor: 'rgba(6,182,212,0.35)', borderWidth: 1, padding: 10, cornerRadius: 8,
+        callbacks: { label: (c) => ` ${c.label}: ₹${Number(c.parsed).toLocaleString('en-IN')}` }
+      }
+    },
     cutout: '68%'
   }
 
